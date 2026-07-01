@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tran Hai Dang — Software Developer</title>
+<style>
+  :root {
+    --ground: #080B11;
+    --panel: #0F141D;
+    --panel-2: #131A25;
+    --text: #E7EDF4;
+    --muted: #7C8896;
+    --accent: #2DD4BF;
+    --accent-2: #38BDF8;
+    --line: rgba(255,255,255,.08);
+    --line-2: rgba(255,255,255,.14);
+    --glow: 0 0 40px rgba(45,212,191,.22);
+    --mono: "JetBrains Mono", "Cascadia Mono", "Consolas", ui-monospace, monospace;
+    --sans: "Segoe UI", "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--ground); color: var(--text);
+    font-family: var(--sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+
+  /* fixed canvas backdrop */
+  #bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .shell { position: relative; z-index: 1; }
+
+  .wrap { width: min(1140px, 92vw); margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--accent);
+    display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  }
+  .eyebrow::before { content: ""; width: 26px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
+
+  .section-title {
+    font-size: clamp(26px, 4.5vw, 42px); font-weight: 800;
+    letter-spacing: -.03em; line-height: 1.08; margin-bottom: 14px;
+  }
+  .section-sub { color: var(--muted); max-width: 560px; margin-bottom: 40px; font-size: clamp(14px,2vw,16px); }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(8,11,17,.72); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .bar { display: flex; align-items: center; justify-content: space-between; height: 62px; }
+  .brand { font-weight: 800; letter-spacing: -.02em; font-size: 16px; display: flex; align-items: center; gap: 9px; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .nav-links { display: flex; gap: 26px; font-family: var(--mono); font-size: 12.5px; }
+  .nav-links a { color: var(--muted); transition: color .2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta {
+    font-family: var(--mono); font-size: 12.5px; padding: 8px 16px; border-radius: 6px;
+    border: 1px solid var(--accent); color: var(--accent); transition: all .2s;
+  }
+  .nav-cta:hover { background: var(--accent); color: #041014; box-shadow: var(--glow); }
+  @media (max-width: 760px){ .nav-links { display: none; } }
+
+  section { padding: clamp(64px, 10vw, 120px) 0; }
+
+  /* ---------- HERO ---------- */
+  .hero { padding-top: clamp(56px, 8vw, 90px); }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(30px, 5vw, 64px); align-items: center; }
+  @media (max-width: 900px){ .hero-grid { grid-template-columns: 1fr; } }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono);
+    font-size: 12px; color: var(--muted); border: 1px solid var(--line-2);
+    padding: 6px 13px; border-radius: 100px; margin-bottom: 26px; background: rgba(255,255,255,.02);
+  }
+  .badge .live { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  .hero h1 {
+    font-size: clamp(38px, 6.6vw, 74px); font-weight: 800; letter-spacing: -.035em;
+    line-height: 1.02; margin-bottom: 22px;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(105deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero .lead { font-size: clamp(15px, 2.4vw, 19px); color: var(--muted); max-width: 540px; margin-bottom: 32px; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: 13px; }
+  .btn {
+    font-family: var(--mono); font-size: 13.5px; padding: 13px 24px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 9px; transition: all .22s; border: 1px solid transparent;
+  }
+  .btn.primary { background: linear-gradient(105deg, var(--accent), var(--accent-2)); color: #04120f; font-weight: 600; }
+  .btn.primary:hover { box-shadow: var(--glow); transform: translateY(-2px); }
+  .btn.ghost { border-color: var(--line-2); color: var(--text); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .stats { display: flex; gap: clamp(24px, 4vw, 44px); margin-top: 46px; flex-wrap: wrap; }
+  .stat .n { font-size: clamp(26px, 4vw, 36px); font-weight: 800; letter-spacing: -.02em; }
+  .stat .n b { background: linear-gradient(105deg,var(--accent),var(--accent-2)); -webkit-background-clip: text; background-clip:text; -webkit-text-fill-color: transparent; }
+  .stat .l { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+  /* ---------- TERMINAL ---------- */
+  .term-3d { perspective: 1400px; }
+  .terminal {
+    background: linear-gradient(180deg, #0d1420, #0a0f18);
+    border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.8), var(--glow);
+    transform: rotateY(-9deg) rotateX(4deg); transform-style: preserve-3d;
+    transition: transform .5s cubic-bezier(.2,.7,.2,1);
+  }
+  .term-3d:hover .terminal { transform: rotateY(0deg) rotateX(0deg); }
+  .term-head { display: flex; align-items: center; gap: 8px; padding: 12px 15px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.02); }
+  .term-head .d { width: 11px; height: 11px; border-radius: 50%; }
+  .term-head .d.r { background: #ff5f56; } .term-head .d.y { background: #ffbd2e; } .term-head .d.g { background: #27c93f; }
+  .term-head .t { margin-left: 10px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .term-body { padding: 18px 18px 22px; font-family: var(--mono); font-size: clamp(11.5px,1.6vw,13.5px); min-height: 262px; line-height: 1.85; }
+  .term-body .u { color: var(--accent); } .term-body .p { color: var(--muted); }
+  .term-body .tool { color: var(--accent-2); } .term-body .ok { color: #27c93f; }
+  .term-body .cursor { display:inline-block; width: 8px; height: 15px; background: var(--accent); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50%{opacity:0} }
+
+  /* ---------- ABOUT ---------- */
+  .about-card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: 18px; padding: clamp(28px,4vw,48px);
+  }
+  .about-card p { font-size: clamp(15px, 2.1vw, 19px); color: var(--text); max-width: 820px; }
+  .about-card p b { color: var(--accent); }
+
+  /* ---------- SKILLS ---------- */
+  .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+    transition: border-color .25s, transform .1s ease-out; transform-style: preserve-3d; position: relative;
+  }
+  .card::after {
+    content:""; position:absolute; inset:0; border-radius:14px; opacity:0; transition:opacity .25s;
+    background: radial-gradient(500px circle at var(--mx,50%) var(--my,50%), rgba(45,212,191,.12), transparent 40%);
+    pointer-events:none;
+  }
+  .card:hover { border-color: var(--line-2); }
+  .card:hover::after { opacity: 1; }
+  .card h3 { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 15px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-family: var(--mono); font-size: 12px; padding: 5px 11px; border-radius: 6px; background: rgba(255,255,255,.03); border: 1px solid var(--line); color: var(--text); }
+
+  /* ---------- EXPERIENCE ---------- */
+  .xp { max-width: 860px; }
+  .xp-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; align-items: baseline; margin-bottom: 8px; }
+  .xp-head .t { font-size: 21px; font-weight: 700; }
+  .xp-head .o { color: var(--accent); font-weight: 600; }
+  .xp-head .d { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .xp-list { list-style: none; margin-top: 20px; display: grid; gap: 14px; }
+  .xp-list li { position: relative; padding-left: 26px; color: var(--muted); }
+  .xp-list li::before { content:""; position:absolute; left:0; top:9px; width:9px; height:9px; border-radius:50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .xp-list li b { color: var(--text); font-weight: 600; }
+
+  /* ---------- PROJECTS ---------- */
+  .proj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .proj {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: 16px; padding: 28px;
+    transition: border-color .25s, transform .12s ease-out; transform-style: preserve-3d; position: relative; overflow: hidden;
+  }
+  .proj.feat { border-color: rgba(45,212,191,.4); box-shadow: 0 0 0 1px rgba(45,212,191,.15) inset; }
+  .proj::after {
+    content:""; position:absolute; inset:0; border-radius:16px; opacity:0; transition:opacity .25s; pointer-events:none;
+    background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(56,189,248,.10), transparent 42%);
+  }
+  .proj:hover::after { opacity:1; }
+  .proj .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .proj .idx { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  .proj .tag { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: rgba(45,212,191,.1); border: 1px solid rgba(45,212,191,.25); padding: 3px 9px; border-radius: 5px; }
+  .proj h3 { font-size: 20px; letter-spacing: -.01em; margin-bottom: 10px; }
+  .proj p { color: var(--muted); font-size: 14.5px; margin-bottom: 16px; }
+  .proj .stack { display: flex; flex-wrap: wrap; gap: 7px; }
+  .proj .stack .chip { font-size: 11px; }
+  .proj .links { margin-top: 16px; font-family: var(--mono); font-size: 12.5px; }
+  .proj .links a { color: var(--accent-2); }
+  .proj .links a:hover { text-decoration: underline; }
+
+  /* ---------- CONTACT ---------- */
+  .contact { text-align: center; }
+  .contact .section-title { font-size: clamp(30px, 6vw, 54px); }
+  .contact-links { display: flex; flex-wrap: wrap; gap: 12px 26px; justify-content: center; font-family: var(--mono); font-size: 14px; margin-top: 30px; }
+  .contact-links span { color: var(--muted); }
+  .contact-links span b { color: var(--accent); margin-right: 8px; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0; text-align: center; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+  .hint { font-family: var(--mono); font-size: 10.5px; color: #d1a54a; background: rgba(209,165,74,.12); border: 1px dashed rgba(209,165,74,.4); padding: 1px 6px; border-radius: 3px; }
+
+  /* ---------- INTERACTIVE DEMO ---------- */
+  .demo-note { font-family: var(--mono); font-size: 11px; color: var(--muted); border:1px solid var(--line); border-radius:6px; padding:4px 10px; display:inline-flex; gap:8px; align-items:center; margin-bottom: 24px; }
+  .demo-note b { color: var(--accent); }
+  .demo-term {
+    background: linear-gradient(180deg, #0d1420, #0a0f18); border: 1px solid var(--line-2);
+    border-radius: 14px; overflow: hidden; box-shadow: 0 30px 70px -35px rgba(0,0,0,.8); max-width: 860px;
+  }
+  .demo-term .term-head { display:flex; align-items:center; gap:8px; padding:12px 15px; border-bottom:1px solid var(--line); background: rgba(255,255,255,.02); }
+  .demo-body { padding: 18px; font-family: var(--mono); font-size: clamp(11.5px,1.7vw,13.5px); line-height: 1.85; min-height: 220px; max-height: 340px; overflow-y: auto; }
+  .demo-body .u { color: var(--accent); } .demo-body .p { color: var(--muted); }
+  .demo-body .tool { color: var(--accent-2); } .demo-body .ok { color: #27c93f; } .demo-body .err { color:#ff6b6b; }
+  .demo-body .cursor { display:inline-block; width:8px; height:15px; background:var(--accent); vertical-align:-2px; animation: blink 1s steps(1) infinite; }
+  .demo-chips { display:flex; flex-wrap:wrap; gap:8px; padding: 12px 15px; border-top:1px solid var(--line); background: rgba(255,255,255,.015); }
+  .demo-chips button {
+    font-family: var(--mono); font-size: 11.5px; color: var(--text); background: rgba(255,255,255,.03);
+    border:1px solid var(--line); border-radius: 100px; padding:6px 13px; cursor:pointer; transition: all .18s;
+  }
+  .demo-chips button:hover:not(:disabled){ border-color: var(--accent); color: var(--accent); }
+  .demo-chips button:disabled { opacity:.4; cursor:default; }
+  .demo-input { display:flex; gap:10px; padding:12px 15px; border-top:1px solid var(--line); }
+  .demo-input .pfx { color: var(--accent); font-family: var(--mono); align-self:center; }
+  .demo-input input {
+    flex:1; background:transparent; border:none; outline:none; color:var(--text);
+    font-family: var(--mono); font-size: 13.5px;
+  }
+  .demo-input input::placeholder { color: var(--muted); }
+  .demo-input button {
+    font-family: var(--mono); font-size: 12.5px; padding: 8px 16px; border-radius:7px; cursor:pointer;
+    background: linear-gradient(105deg,var(--accent),var(--accent-2)); color:#04120f; border:none; font-weight:600; transition: all .2s;
+  }
+  .demo-input button:hover:not(:disabled){ box-shadow: var(--glow); }
+  .demo-input button:disabled { opacity:.5; cursor:default; }
+
+  /* reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    #bg { display: none; }
+    .terminal { transform: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .badge .live, .term-body .cursor { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="shell">
+  <nav>
+    <div class="wrap bar">
+      <span class="brand"><span class="dot"></span>Tran Hai Dang</span>
+      <div class="nav-links">
+        <a href="#about">about</a>
+        <a href="#skills">skills</a>
+        <a href="#work">work</a>
+        <a href="#projects">projects</a>
+        <a href="#demo">demo</a>
+      </div>
+      <a class="nav-cta" href="#contact">contact →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <span class="badge"><span class="live"></span> Building software that runs hospitals</span>
+        <h1>Software developer<br>for <span class="grad">healthcare &amp; automation</span>.</h1>
+        <p class="lead">I build and maintain a large C# / .NET hospital system — and wire modern AI agents into the workflow. I turn manual, repetitive engineering into tooling that ships itself.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#projects">Explore projects →</a>
+          <a class="btn ghost" href="#contact">Get in touch</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="n"><b>1</b> yr+</div><div class="l">On the HIS platform</div></div>
+          <div class="stat"><div class="n"><b>60</b>+</div><div class="l">Releases shipped</div></div>
+          <div class="stat"><div class="n"><b>8</b></div><div class="l">Hospital modules</div></div>
+        </div>
+      </div>
+
+      <div class="reveal term-3d">
+        <div class="terminal">
+          <div class="term-head">
+            <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+            <span class="t">codeassist — ~/HIS.Desktop</span>
+          </div>
+          <div class="term-body" id="term"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap reveal">
+      <p class="eyebrow">About</p>
+      <h2 class="section-title">Engineer on a mission-critical system.</h2>
+      <div class="about-card">
+        <p>I'm a C# desktop developer maintaining and extending a <b>large-scale Hospital Information System</b> built on WinForms, DevExpress and a MEF plugin architecture. Over the past year I've shipped features across pharmacy, warehouse, billing, clinical-service and blood-transfusion modules — from UI down to backend API integration and printed medical reports. I trace issues end-to-end across UI, cache, API and data layers, and I use <b>AI coding assistants and prompt engineering</b> to review, refactor and document code faster on a large legacy codebase.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Stack</p>
+        <h2 class="section-title">Tools of the trade</h2>
+        <p class="section-sub">The technologies I reach for across desktop, data, and AI-automation work.</p>
+      </div>
+      <div class="grid-cards reveal">
+        <div class="card tilt"><h3>Core</h3><div class="chips"><span class="chip">C#</span><span class="chip">.NET / .NET 8</span><span class="chip">WinForms</span><span class="chip">DevExpress 15.2</span><span class="chip">MEF plugins</span></div></div>
+        <div class="card tilt"><h3>Data &amp; API</h3><div class="chips"><span class="chip">Entity Framework</span><span class="chip">REST</span><span class="chip">WCF</span><span class="chip">SQL</span><span class="chip">JSON</span></div></div>
+        <div class="card tilt"><h3>AI &amp; Automation</h3><div class="chips"><span class="chip">Prompt engineering</span><span class="chip">Claude API</span><span class="chip">Tool-calling agents</span><span class="chip">AI code review</span></div></div>
+        <div class="card tilt"><h3>Tools &amp; Domain</h3><div class="chips"><span class="chip">Visual Studio</span><span class="chip">Git / GitLab</span><span class="chip">MPS Reporting</span><span class="chip">VN Health Insurance</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="work">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Experience</p>
+        <h2 class="section-title">Where I've made an impact</h2>
+      </div>
+      <div class="about-card xp reveal" style="max-width:none;">
+        <div class="xp-head">
+          <div><span class="t">Software Developer</span> &nbsp; <span class="o">VietSens — HIS Desktop</span></div>
+          <span class="d">[20xx] – Present <span class="hint">edit year</span></span>
+        </div>
+        <ul class="xp-list">
+          <li>Delivered features across <b>pharmacy &amp; warehouse</b> — stock-on-hand, import lists, stock-transfer slips, medicine/material creation, and the medicine-dispensing slip.</li>
+          <li>Lead developer of the <b>PrintBordereau</b> reporting library — the year's most actively iterated module.</li>
+          <li>Fixed clinical workflows: paraclinical service execution, specialist-exam approval, blood-bag management and pre-transfusion checks; synced cross-match lab results from LIS into HIS.</li>
+          <li>Reworked advance-refund and billing transactions and the patient queue-display screen; wrote and maintained module documentation alongside code.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Projects</p>
+        <h2 class="section-title">Selected work</h2>
+        <p class="section-sub">From production hospital modules to a personal AI-automation experiment.</p>
+      </div>
+      <div class="proj-grid reveal">
+        <div class="proj feat tilt">
+          <div class="top"><span class="idx">★ featured</span><span class="tag">Personal · AI</span></div>
+          <h3>codeassist — AI coding agent CLI</h3>
+          <p>A terminal coding assistant in C# / .NET 8 on the official Anthropic SDK. Runs an <b style="color:var(--text)">agentic tool-use loop</b> — the model reads, searches and writes files in a workspace until it can answer — with path-confined tools and a clean ~250-line architecture.</p>
+          <div class="stack"><span class="chip">C#</span><span class="chip">.NET 8</span><span class="chip">Claude API</span><span class="chip">Tool calling</span><span class="chip">Agentic loop</span></div>
+          <div class="links"><a href="[your GitHub repo URL]">↗ Source on GitHub <span class="hint">add link</span></a></div>
+        </div>
+
+        <div class="proj tilt">
+          <div class="top"><span class="idx">01</span><span class="tag">Integration</span></div>
+          <h3>EMR JSON conversion library</h3>
+          <p>A reusable library that encrypts and imports patient transfer records into the external EMRTOOLKIT system over a 3-step secured HTTP flow (token → encrypt JSON → import), with TLS 1.2 and resilient response parsing so any plugin can call it.</p>
+          <div class="stack"><span class="chip">C#</span><span class="chip">HttpClient</span><span class="chip">JSON</span><span class="chip">TLS 1.2</span></div>
+        </div>
+
+        <div class="proj tilt">
+          <div class="top"><span class="idx">02</span><span class="tag">Digital signing</span></div>
+          <h3>Patient certificate registration</h3>
+          <p>Developed the module that issues and registers digital certificates for patient documents, wired into the EMR digital-signing flow used across electronic medical records.</p>
+          <div class="stack"><span class="chip">C#</span><span class="chip">WinForms</span><span class="chip">Digital signature</span><span class="chip">EMR</span></div>
+        </div>
+
+        <div class="proj tilt">
+          <div class="top"><span class="idx">03</span><span class="tag">Reporting</span></div>
+          <h3>PrintBordereau library</h3>
+          <p>Primary developer on the shared bordereau (statement) printing library used across billing and cashier modules — the most heavily iterated component of the year.</p>
+          <div class="stack"><span class="chip">C#</span><span class="chip">MPS Reporting</span><span class="chip">FlexCel</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE DEMO -->
+  <section id="demo">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Live demo</p>
+        <h2 class="section-title">Try the agent</h2>
+        <p class="section-sub">A taste of my <b style="color:var(--accent)">codeassist</b> CLI — the C# coding agent. Pick a prompt or type your own and watch it work the agentic tool-use loop.</p>
+        <span class="demo-note">▲ <b>Simulated</b>&nbsp;— scripted responses, no live API calls. The real agent is on GitHub.</span>
+      </div>
+
+      <div class="demo-term reveal">
+        <div class="term-head">
+          <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+          <span class="t">codeassist — ~/HIS.Desktop</span>
+        </div>
+        <div class="demo-body" id="demo-body"><span class="p">codeassist — Claude-powered coding assistant</span><br><span class="p">workspace: ./HIS.Desktop · type a question or pick one below.</span></div>
+        <div class="demo-chips" id="demo-chips">
+          <button data-k="bhyt">where is the BHYT check?</button>
+          <button data-k="null">add null-guards to the save method</button>
+          <button data-k="test">write a unit test for the price calc</button>
+        </div>
+        <form class="demo-input" id="demo-form">
+          <span class="pfx">you&gt;</span>
+          <input id="demo-input" autocomplete="off" placeholder="ask codeassist about the workspace..." />
+          <button type="submit" id="demo-run">run</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact">
+    <div class="wrap reveal">
+      <p class="eyebrow" style="justify-content:center;">Contact</p>
+      <h2 class="section-title">Let's build something automated.</h2>
+      <p class="section-sub" style="margin:0 auto;">Open to backend / desktop / AI-integration roles. Fastest ways to reach me:</p>
+      <div class="contact-links">
+        <span><b>Email</b>[your.email@domain.com]</span>
+        <span><b>Phone</b>[+84 ...]</span>
+        <span><b>GitHub</b>[github.com/you]</span>
+        <span><b>Location</b>[City, Vietnam]</span>
+      </div>
+    </div>
+  </section>
+
+  <footer><div class="wrap">© <span id="yr"></span> Tran Hai Dang · Built with plain HTML, CSS &amp; Canvas — no frameworks.</div></footer>
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var yr = document.getElementById("yr"); if (yr) yr.textContent = "2026";
+
+  /* ---------- scroll reveal ---------- */
+  var reveals = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(function (r) { io.observe(r); });
+  } else {
+    reveals.forEach(function (r) { r.classList.add("in"); });
+  }
+
+  /* ---------- 3D tilt + glare on cards ---------- */
+  if (!reduce && window.matchMedia("(pointer:fine)").matches) {
+    document.querySelectorAll(".tilt").forEach(function (card) {
+      card.addEventListener("pointermove", function (e) {
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        card.style.transform = "perspective(900px) rotateY(" + (px - .5) * 9 + "deg) rotateX(" + (.5 - py) * 9 + "deg) translateZ(6px)";
+        card.style.setProperty("--mx", px * 100 + "%");
+        card.style.setProperty("--my", py * 100 + "%");
+      });
+      card.addEventListener("pointerleave", function () { card.style.transform = ""; });
+    });
+  }
+
+  /* ---------- animated node-network backdrop ---------- */
+  var c = document.getElementById("bg");
+  if (c && !reduce) {
+    var ctx = c.getContext("2d"), nodes = [], W, H, DPR = Math.min(window.devicePixelRatio || 1, 2);
+    function resize() {
+      W = c.clientWidth = window.innerWidth; H = c.clientHeight = window.innerHeight;
+      c.width = W * DPR; c.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      var count = Math.round(Math.min(90, (W * H) / 20000));
+      nodes = [];
+      for (var i = 0; i < count; i++) {
+        nodes.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .28, vy: (Math.random() - .5) * .28 });
+      }
+    }
+    function tick() {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      }
+      for (var a = 0; a < nodes.length; a++) {
+        for (var b = a + 1; b < nodes.length; b++) {
+          var dx = nodes[a].x - nodes[b].x, dy = nodes[a].y - nodes[b].y, d = dx * dx + dy * dy;
+          if (d < 17000) {
+            var o = (1 - d / 17000) * .5;
+            ctx.strokeStyle = "rgba(45,212,191," + o.toFixed(3) + ")";
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(nodes[a].x, nodes[a].y); ctx.lineTo(nodes[b].x, nodes[b].y); ctx.stroke();
+          }
+        }
+      }
+      ctx.fillStyle = "rgba(56,189,248,.55)";
+      for (var k = 0; k < nodes.length; k++) { ctx.beginPath(); ctx.arc(nodes[k].x, nodes[k].y, 1.4, 0, 6.2832); ctx.fill(); }
+      requestAnimationFrame(tick);
+    }
+    resize(); tick();
+    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(resize, 200); });
+  }
+
+  /* ---------- typing terminal ---------- */
+  var term = document.getElementById("term");
+  if (term) {
+    var script = [
+      { t: "$ codeassist ./HIS.Desktop", c: "u" },
+      { t: "codeassist — Claude-powered coding assistant", c: "p" },
+      { t: "you> where is the health-insurance check configured?", c: "" },
+      { t: "  · search(\"HeinGOV\")", c: "tool" },
+      { t: "  · read_file(\"CheckHeinGOV.cs\")", c: "tool" },
+      { t: "claude> Found it — HeinGOVManager.Check() in", c: "" },
+      { t: "        CheckHeinGOV.cs:42 validates the BHYT card.", c: "" },
+      { t: "you> add null-guards and log the failure path", c: "" },
+      { t: "  · write_file(\"CheckHeinGOV.cs\")", c: "tool" },
+      { t: "✓ done — guarded input + LogSystem.Error added.", c: "ok" }
+    ];
+    if (reduce) {
+      term.innerHTML = script.map(function (l) {
+        return '<div class="' + l.c + '">' + l.t.replace(/</g, "&lt;") + "</div>";
+      }).join("") + '<span class="cursor"></span>';
+    } else {
+      var li = 0, ci = 0, cur = document.createElement("span");
+      function step() {
+        if (li >= script.length) {
+          setTimeout(function () { term.innerHTML = ""; li = 0; ci = 0; run(); }, 3400);
+          return;
+        }
+        var line = script[li];
+        if (ci === 0) {
+          var div = document.createElement("div"); div.className = line.c; div.dataset.i = li; term.appendChild(div);
+        }
+        var div2 = term.querySelector('div[data-i="' + li + '"]');
+        div2.textContent = line.t.slice(0, ci);
+        term.appendChild(cur);
+        ci++;
+        if (ci > line.t.length) { li++; ci = 0; setTimeout(step, line.c === "" || line.c === "u" ? 260 : 130); }
+        else { setTimeout(step, 16 + Math.random() * 26); }
+      }
+      function run() { cur.className = "cursor"; step(); }
+      run();
+    }
+  }
+})();
+</script>
+
+<script>
+/* ---------- interactive (simulated) agent demo ---------- */
+(function () {
+  var body = document.getElementById("demo-body");
+  var form = document.getElementById("demo-form");
+  var input = document.getElementById("demo-input");
+  var runBtn = document.getElementById("demo-run");
+  var chips = document.getElementById("demo-chips");
+  if (!body || !form) return;
+
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var canned = {
+    bhyt: [
+      { t: 'you> where is the BHYT (health-insurance) check configured?', c: '' },
+      { t: '  · search("HeinGOV")', c: 'tool' },
+      { t: '  · read_file("Library/CheckHeinGOV/CheckHeinGOV.cs")', c: 'tool' },
+      { t: 'claude> The card check lives in CheckHeinGOV.cs. It calls', c: '' },
+      { t: '        HeinGOVManager.Check(dataHein, ...) at line 42, which', c: '' },
+      { t: '        validates the BHYT card against the BHXH gateway.', c: '' }
+    ],
+    null: [
+      { t: 'you> add null-guards to the save method', c: '' },
+      { t: '  · read_file("frmTransaction__Save.cs")', c: 'tool' },
+      { t: 'claude> I\'ll guard the DTO and the API result before use,', c: '' },
+      { t: '        and log the failure path with LogSystem.Error.', c: '' },
+      { t: '  · write_file("frmTransaction__Save.cs")', c: 'tool' },
+      { t: '✓ done — added null checks + structured error logging.', c: 'ok' }
+    ],
+    test: [
+      { t: 'you> write a unit test for the price calculation', c: '' },
+      { t: '  · search("CalculatePrice")', c: 'tool' },
+      { t: '  · read_file("Worker/PriceWorker.cs")', c: 'tool' },
+      { t: 'claude> Writing an xUnit test covering VAT, discount and the', c: '' },
+      { t: '        zero-quantity edge case.', c: '' },
+      { t: '  · write_file("Tests/PriceWorkerTests.cs")', c: 'tool' },
+      { t: '✓ done — 3 test cases added.', c: 'ok' }
+    ]
+  };
+
+  function generic(query) {
+    var kw = (query.split(/\s+/).filter(function (w) { return w.length > 3; })[0] || query).replace(/"/g, "");
+    return [
+      { t: 'you> ' + query, c: '' },
+      { t: '  · search("' + kw + '")', c: 'tool' },
+      { t: '  · read_file(<top match>)', c: 'tool' },
+      { t: 'claude> Based on the workspace, here\'s what I found and', c: '' },
+      { t: '        the change I\'d make. (This is a scripted portfolio', c: '' },
+      { t: '        demo — the real agent runs live on GitHub.)', c: 'p' }
+    ];
+  }
+
+  var busy = false;
+  function setBusy(state) {
+    busy = state;
+    runBtn.disabled = state; input.disabled = state;
+    chips.querySelectorAll("button").forEach(function (b) { b.disabled = state; });
+  }
+
+  function line(cls) {
+    var d = document.createElement("div");
+    if (cls) d.className = cls;
+    body.appendChild(d);
+    return d;
+  }
+
+  function play(seq) {
+    if (busy) return;
+    setBusy(true);
+    body.appendChild(document.createElement("br"));
+    var i = 0;
+    function next() {
+      if (i >= seq.length) { setBusy(false); input.focus(); return; }
+      var item = seq[i], d = line(item.c), text = item.t, ci = 0;
+      var cur = document.createElement("span"); cur.className = "cursor";
+      function type() {
+        if (reduce) { d.textContent = text; i++; body.scrollTop = body.scrollHeight; next(); return; }
+        d.textContent = text.slice(0, ci); d.appendChild(cur);
+        body.scrollTop = body.scrollHeight;
+        ci++;
+        if (ci > text.length) { if (cur.parentNode) cur.parentNode.removeChild(cur); i++; setTimeout(next, item.c === "tool" ? 160 : 300); }
+        else { setTimeout(type, 14 + Math.random() * 22); }
+      }
+      type();
+    }
+    next();
+  }
+
+  chips.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b || busy) return;
+    play(canned[b.dataset.k]);
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var q = input.value.trim(); if (!q || busy) return;
+    input.value = "";
+    var key = /bhyt|insurance|hein/i.test(q) ? "bhyt" : /null|guard/i.test(q) ? "null" : /test|unit/i.test(q) ? "test" : null;
+    play(key ? canned[key] : generic(q));
+  });
+})();
+</script>
+</body>
+</html>

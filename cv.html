@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tran Hai Dang — Software Developer CV</title>
+<style>
+  :root {
+    --ground: #FFFFFF;
+    --panel: #F4F7F8;
+    --text: #16202E;
+    --muted: #5A6B7B;
+    --accent: #0E7C6B;
+    --accent-soft: #E3F1ED;
+    --rule: #D5DEE6;
+    --mono: "Consolas", "SF Mono", ui-monospace, "Cascadia Mono", monospace;
+    --sans: "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: #E9EEF1;
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 24px 12px;
+  }
+
+  .sheet {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--ground);
+    box-shadow: 0 8px 40px rgba(22,32,46,.14);
+  }
+
+  /* ---- Header ---- */
+  .masthead {
+    padding: 40px 44px 30px;
+    border-bottom: 3px solid var(--text);
+    position: relative;
+  }
+  .masthead::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 6px;
+    background: var(--accent);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-size: 42px;
+    line-height: 1.02;
+    letter-spacing: -.02em;
+    font-weight: 700;
+    margin: 0;
+  }
+  .role {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 8px 0 0;
+    letter-spacing: .01em;
+  }
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .contact-row span b {
+    color: var(--accent);
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  /* ---- Body grid ---- */
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 2.05fr;
+  }
+  .aside {
+    background: var(--panel);
+    padding: 34px 30px 40px;
+    border-right: 1px solid var(--rule);
+  }
+  .main {
+    padding: 34px 40px 44px;
+  }
+
+  /* ---- Section labels ---- */
+  .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 0 0 14px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .label::before {
+    content: "";
+    width: 8px; height: 8px;
+    background: var(--accent);
+    flex: none;
+  }
+  .block { margin-bottom: 30px; }
+  .block:last-child { margin-bottom: 0; }
+
+  /* ---- Aside content ---- */
+  .profile-line { font-size: 13.5px; color: var(--muted); margin: 0; }
+
+  .kv { font-size: 13px; margin: 0 0 13px; }
+  .kv:last-child { margin-bottom: 0; }
+  .kv .k {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .kv .v { color: var(--text); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 12px;
+    font-family: var(--mono);
+    background: var(--ground);
+    border: 1px solid var(--rule);
+    padding: 3px 9px;
+    border-radius: 2px;
+    color: var(--text);
+  }
+  .chip.key { border-color: var(--accent); color: var(--accent); }
+
+  .skillbar { margin-bottom: 12px; }
+  .skillbar:last-child { margin-bottom: 0; }
+  .skillbar .top {
+    display: flex; justify-content: space-between;
+    font-size: 12.5px; margin-bottom: 4px;
+  }
+  .skillbar .top .lvl { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .track { height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+  .track > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+
+  /* ---- Profile summary ---- */
+  .summary { font-size: 14.5px; margin: 0; color: var(--text); }
+  .summary strong { color: var(--accent); font-weight: 600; }
+
+  /* ---- Experience timeline ---- */
+  .job { position: relative; padding-left: 26px; padding-bottom: 8px; }
+  .job::before {
+    content: "";
+    position: absolute; left: 4px; top: 6px; bottom: -18px;
+    width: 2px; background: var(--rule);
+  }
+  .job:last-child::before { display: none; }
+  .job::after {
+    content: "";
+    position: absolute; left: 0; top: 5px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--ground); border: 2.5px solid var(--accent);
+  }
+  .job-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px; }
+  .job-title { font-size: 15.5px; font-weight: 700; margin: 0; }
+  .job-org { font-size: 13.5px; color: var(--accent); font-weight: 600; }
+  .job-date { font-family: var(--mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .job-note { font-size: 13px; color: var(--muted); margin: 3px 0 12px; }
+
+  .work { margin: 0 0 18px; }
+  .work:last-child { margin-bottom: 0; }
+  .work-h {
+    font-size: 12.5px; font-weight: 700; margin: 0 0 6px;
+    color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .work-h .tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 2px 7px; border-radius: 2px; text-transform: uppercase;
+  }
+  ul.pts { margin: 0; padding-left: 17px; }
+  ul.pts li { font-size: 13.5px; margin-bottom: 5px; }
+  ul.pts li::marker { color: var(--accent); }
+
+  /* ---- AI callout ---- */
+  .ai {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 3px 3px 0;
+  }
+  .ai p { margin: 0 0 8px; font-size: 13.5px; }
+  .ai p:last-child { margin-bottom: 0; }
+  .ai b { color: var(--accent); }
+
+  .hint {
+    font-family: var(--mono); font-size: 11px; color: #B08900;
+    background: #FCF6E3; border: 1px dashed #E4C65B;
+    padding: 2px 6px; border-radius: 2px;
+  }
+
+  @media (max-width: 720px) {
+    .body { grid-template-columns: 1fr; }
+    .aside { border-right: none; border-bottom: 1px solid var(--rule); }
+    h1 { font-size: 34px; }
+    .masthead, .aside, .main { padding-left: 26px; padding-right: 26px; }
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .sheet { box-shadow: none; max-width: none; }
+    .job, .work, .block { break-inside: avoid; }
+    .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <header class="masthead">
+    <p class="eyebrow">Curriculum Vitae</p>
+    <h1>Tran Hai Dang</h1>
+    <p class="role">Software Developer &mdash; C# / .NET WinForms &middot; Healthcare Systems</p>
+    <div class="contact-row">
+      <span><b>Email</b>[your.email@domain.com]</span>
+      <span><b>Phone</b>[+84 ...]</span>
+      <span><b>Location</b>[City, Vietnam]</span>
+      <span><b>GitLab</b>[profile / repo]</span>
+    </div>
+  </header>
+
+  <div class="body">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="aside">
+      <section class="block">
+        <h2 class="label">Profile</h2>
+        <p class="profile-line">Enterprise desktop developer focused on Hospital Information Systems (HIS). Builds and maintains large WinForms modules across pharmacy, inventory, billing and clinical workflows.</p>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Core Stack</h2>
+        <div class="chips">
+          <span class="chip key">C#</span>
+          <span class="chip key">.NET Framework 4.5</span>
+          <span class="chip key">WinForms</span>
+          <span class="chip key">DevExpress 15.2</span>
+          <span class="chip">MEF Plugins</span>
+          <span class="chip">Entity Framework</span>
+          <span class="chip">REST / WCF</span>
+          <span class="chip">SQL</span>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Proficiency</h2>
+        <div class="skillbar">
+          <div class="top"><span>C# / WinForms</span><span class="lvl">Advanced</span></div>
+          <div class="track"><i style="width:92%"></i></div>
+        </div>
+        <div class="skillbar">
+          <div class="top"><span>DevExpress UI</span><span class="lvl">Advanced</span></div>
+          <div class="track"><i style="width:88%"></i></div>
+        </div>
+        <div class="skillbar">
+          <div class="top"><span>API Integration</span><span class="lvl">Proficient</span></div>
+          <div class="track"><i style="width:82%"></i></div>
+        </div>
+        <div class="skillbar">
+          <div class="top"><span>SQL / Data</span><span class="lvl">Proficient</span></div>
+          <div class="track"><i style="width:78%"></i></div>
+        </div>
+        <div class="skillbar">
+          <div class="top"><span>AI-assisted Dev</span><span class="lvl">Proficient</span></div>
+          <div class="track"><i style="width:80%"></i></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Tools</h2>
+        <div class="chips">
+          <span class="chip">Visual Studio 2019+</span>
+          <span class="chip">Git / GitLab</span>
+          <span class="chip">Claude Code</span>
+          <span class="chip">MPS Reporting</span>
+          <span class="chip">FlexCel</span>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Domain</h2>
+        <div class="chips">
+          <span class="chip">Pharmacy &amp; Inventory</span>
+          <span class="chip">Hospital Billing</span>
+          <span class="chip">Blood Transfusion</span>
+          <span class="chip">Lab (LIS) Integration</span>
+          <span class="chip">Vietnam Health Insurance</span>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Education</h2>
+        <p class="kv"><span class="k">Degree</span><span class="v">[Degree / Major] <span class="hint">edit</span></span></p>
+        <p class="kv"><span class="k">University</span><span class="v">[University name]</span></p>
+        <p class="kv"><span class="k">Years</span><span class="v">[20xx &ndash; 20xx]</span></p>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Languages</h2>
+        <p class="kv"><span class="k">Vietnamese</span><span class="v">Native</span></p>
+        <p class="kv"><span class="k">English</span><span class="v">[Reading technical docs] <span class="hint">edit</span></span></p>
+      </section>
+    </aside>
+
+    <!-- ================= MAIN ================= -->
+    <main class="main">
+      <section class="block">
+        <h2 class="label">Summary</h2>
+        <p class="summary">I am a C# desktop developer with hands-on experience delivering and maintaining a <strong>large-scale Hospital Information System</strong> built on WinForms, DevExpress and a MEF plugin architecture. Over the past year, I shipped <strong>60+ feature and fix releases</strong> across pharmacy, warehouse, billing, clinical-service and blood-transfusion modules &mdash; from UI to backend API integration and printed medical reports. I trace issues end-to-end across UI, cache, API and data layers, and I apply <strong>AI coding assistants</strong> to review, refactor and document code faster. I am eager to bring this experience to your team.</p>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Experience</h2>
+
+        <div class="job">
+          <div class="job-head">
+            <div>
+              <p class="job-title">Software Developer</p>
+              <span class="job-org">VietSens &mdash; HIS Desktop</span>
+            </div>
+            <span class="job-date">[20xx] &ndash; Present</span>
+          </div>
+          <p class="job-note">Build and maintain modules on a production hospital system (1000+ plugins, WinForms + DevExpress, .NET 4.5) used daily by doctors, pharmacists and cashiers.</p>
+
+          <ul class="pts">
+            <li>Delivered features across <b>pharmacy &amp; warehouse</b> (stock, imports, stock-transfer slips, medicine/material creation) and the medicine-dispensing slip.</li>
+            <li>Lead developer of the <b>PrintBordereau</b> reporting library &mdash; the year's most iterated module &mdash; plus aggregate export-slip print filters.</li>
+            <li>Fixed clinical workflows: paraclinical (CLS) service execution, specialist-exam approval, blood-bag management and pre-transfusion checks.</li>
+            <li>Synchronised cross-match lab results from LIS into HIS; reworked advance-refund and billing transactions and the patient queue-display screen.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="label">Key Technical Work</h2>
+
+        <div class="work">
+          <p class="work-h"><span class="tag">Integration</span> EMR JSON conversion library</p>
+          <ul class="pts">
+            <li>Built a reusable library that encrypts and imports patient transfer records into the external <b>EMRTOOLKIT</b> system over a 3-step secured HTTP flow (token &rarr; encrypt JSON &rarr; import), with TLS 1.2 and resilient response parsing so any plugin can call it.</li>
+          </ul>
+        </div>
+
+        <div class="work">
+          <p class="work-h"><span class="tag">Digital signing</span> Patient certificate registration</p>
+          <ul class="pts">
+            <li>Developed the module that issues and registers <b>digital certificates</b> for patient documents, wired into the EMR digital-signing flow.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="label">AI-Assisted Development</h2>
+        <div class="ai">
+          <p>Uses <b>AI coding assistants and prompt engineering</b> as part of the daily workflow to work faster and keep quality high on a large legacy codebase.</p>
+          <p>&bull; Writes targeted prompts to <b>trace bugs</b> across UI, API and data layers and to locate root causes in unfamiliar plugins.</p>
+          <p>&bull; Uses AI to <b>review code, refactor</b> anti-patterns (O(n&sup2; loops, N+1 lookups) and enforce naming and logging conventions.</p>
+          <p>&bull; Generates <b>boilerplate and module documentation</b> from templates, then reviews and corrects the output before committing.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</body>
+</html>
