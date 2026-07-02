@@ -785,7 +785,7 @@
     next();
   }
 
-  var WORKER_URL = "https://codeassist-demo.dangtran.workers.dev";
+  var API_URL = "https://codeassist-demo.vercel.app/api/chat";
 
   function keyFor(m) {
     if (/^(hi|hii|hello|hey|yo|chào|xin chào)\b|how are you|good (morning|afternoon|evening)|who are you|what can you/i.test(m)) return "greet";
@@ -798,34 +798,40 @@
   // Client-side demo cap: after a handful of questions, invite the visitor to connect.
   var uses = 0, USE_LIMIT = 6;
 
-  // Try the live Worker (real streamed Claude answer); fall back to the scripted demo on any error.
+  // Types text into an element char-by-char (streaming feel from a full JSON answer).
+  function typeInto(el, text, done) {
+    var i = 0, cur = document.createElement("span"); cur.className = "cursor";
+    (function t() {
+      el.textContent = text.slice(0, i); el.appendChild(cur);
+      body.scrollTop = body.scrollHeight;
+      i++;
+      if (i > text.length) { cur.remove(); if (done) done(); return; }
+      setTimeout(t, 10 + Math.random() * 16);
+    })();
+  }
+
+  // Call the live Vercel endpoint (real Claude answer as JSON); fall back to the scripted demo on any error.
   function ask(message) {
     if (busy) return;
     if (uses >= USE_LIMIT) { showLimitModal(); return; }   // reached demo cap → connect modal
     uses++;
     setBusy(true);
-    fetch(WORKER_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message }) })
+    fetch(API_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message }) })
       .then(function (res) {
-        if (res.status === 429) { setBusy(false); showLimitModal(); return; }   // rate limited → invite to connect
-        if (!res.ok || !res.body) throw new Error("worker");
+        if (res.status === 429) { showLimitModal(); throw new Error("rate"); }   // rate limited → modal, no fallback
+        if (!res.ok) throw new Error("api");
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || !data.text) throw new Error("empty");
         body.appendChild(document.createElement("br"));
         line("").textContent = "you> " + message;
-        var out = line(""); out.textContent = "claude> ";
-        var cur = document.createElement("span"); cur.className = "cursor"; out.appendChild(cur);
-        var reader = res.body.getReader(), dec = new TextDecoder();
-        (function pump() {
-          reader.read().then(function (r) {
-            if (r.done) { cur.remove(); setBusy(false); input.focus(); return; }
-            cur.remove();
-            out.textContent += dec.decode(r.value, { stream: true });
-            out.appendChild(cur);
-            body.scrollTop = body.scrollHeight;
-            pump();
-          }).catch(function () { cur.remove(); setBusy(false); input.focus(); });
-        })();
+        var out = line(""); out.style.whiteSpace = "pre-wrap";
+        typeInto(out, "claude> " + data.text, function () { setBusy(false); input.focus(); });
       })
-      .catch(function () {                 // Worker offline / quota / CORS → scripted fallback
+      .catch(function (e) {                // endpoint down / CORS / offline → scripted fallback
         setBusy(false);
+        if (e && e.message === "rate") return;   // modal already shown
         var k = keyFor(message);
         var seq = k ? canned[k].slice() : generic(message);
         if (k) seq[0] = { t: 'you> ' + message, c: '' };   // echo the visitor's actual wording
