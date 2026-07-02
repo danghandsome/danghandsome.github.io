@@ -1,3 +1,10 @@
 name = "codeassist-demo"
 main = "worker.js"
 compatibility_date = "2024-11-01"
+
+# Per-IP rate limiter: max 15 requests / 60s. Blocks spam before it reaches Claude.
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 15, period = 60 }

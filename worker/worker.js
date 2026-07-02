@@ -46,6 +46,11 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
     if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
 
+    // Per-IP rate limit (spam guard) — blocks before we ever call Claude.
+    const ip = request.headers.get("CF-Connecting-IP") || "anon";
+    const { success } = await env.RATE_LIMITER.limit({ key: ip });
+    if (!success) return txt("Too many requests — please wait a minute and try again.", 429);
+
     let body;
     try { body = await request.json(); } catch { return txt("bad json", 400); }
     const message = String(body.message || "").slice(0, 500).trim();

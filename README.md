@@ -29,8 +29,11 @@ Browser (portfolio)                Cloudflare Worker                 Anthropic A
         +-- on any error -> falls back to a scripted reply (never breaks)
 ```
 
-Bounded on purpose: cheapest model (Haiku), small `max_tokens`, CORS locked to this
-origin, and an Anthropic spend limit — so the demo cost stays tiny.
+Bounded on purpose, four layers of cost/abuse control:
+- **Per-IP rate limit** — 15 requests / minute / IP (Cloudflare Rate Limiting); spam is blocked with `429` *before* it ever reaches Claude.
+- **Cheapest model** (Haiku) + **`max_tokens` 500** — each answer costs a fraction of a cent.
+- **CORS** locked to this origin.
+- **Anthropic spend limit** (auto-reload off) — a hard cap; worst case it simply stops.
 
 ## Deploy
 
@@ -52,6 +55,11 @@ origin, and an Anthropic spend limit — so the demo cost stays tiny.
 - Fixed a `403 forbidden` from Anthropic — cause was a **permission-restricted API
   key**; resolved by issuing a fresh full-permission key and re-setting the Worker
   secret. (Not a region block — the account infers fine.)
+- Added a **per-IP rate limit** (15 req/min, Cloudflare Rate Limiting) so nobody can
+  spam the endpoint and burn API credit — blocked with `429` before reaching Claude.
+- Made the demo **recruiter-friendly**: plain-language prompts ("What does this code
+  do?", "Find a potential bug", "Add a unit test") and a "no setup needed" hint, so a
+  non-domain visitor can try it in one click.
 - Refreshed the CV PDF to the latest version.
 
 ### 2026-07-01 (evening) — polish & quick wins
