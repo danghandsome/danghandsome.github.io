@@ -4,8 +4,13 @@ Backend that powers the **live** agent demo on the portfolio. It keeps the
 Anthropic API key server-side and streams a bounded answer (cheap model, small
 `max_tokens`) so cost stays tiny and is capped by an Anthropic spend limit.
 
-> Status: **not deployed yet** — the portfolio currently runs the *simulated*
-> demo. Follow the steps below once you have an Anthropic API key.
+> Status: **DEPLOYED & LIVE** (2026-07-02) at
+> `https://codeassist-demo.dangtran.workers.dev` via the Wrangler CLI. The steps
+> below document how it was set up / how to redeploy.
+>
+> **Redeploy after editing `worker.js`:** in `d:\PortfolioWorker`, run
+> `npx wrangler deploy`. Update the API key with `npx wrangler secret put ANTHROPIC_API_KEY`.
+> Use a **full-permission** key — a permission-restricted key returns `403 forbidden`.
 
 ## Prerequisites (do first)
 1. **console.anthropic.com** → add a little credit (e.g. $5).

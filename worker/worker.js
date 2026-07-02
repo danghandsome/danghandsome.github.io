@@ -57,6 +57,7 @@ export default {
         "content-type": "application/json",
         "x-api-key": env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
+        "user-agent": "codeassist-demo/1.0 (+https://danghandsome.github.io)",
       },
       body: JSON.stringify({
         model: MODEL,
@@ -72,7 +73,7 @@ export default {
 
     if (!upstream.ok || !upstream.body) {
       const detail = await upstream.text().catch(() => "");
-      return txt("upstream error: " + detail.slice(0, 200), 502);
+      return txt("upstream " + upstream.status + ": " + detail.slice(0, 300), 502);
     }
 
     // Convert Claude's SSE into a plain-text stream the browser can read directly.
