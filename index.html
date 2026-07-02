@@ -443,7 +443,7 @@
         <p class="eyebrow">Live demo</p>
         <h2 class="section-title">Try the agent</h2>
         <p class="section-sub">A taste of my <b style="color:var(--accent)">codeassist</b> CLI — the C# coding agent. Pick a prompt or type your own and watch it work the agentic tool-use loop.</p>
-        <span class="demo-note">▲ <b>Simulated</b>&nbsp;— scripted responses, no live API calls. The real agent is on GitHub.</span>
+        <span class="demo-note">● <b>Live</b>&nbsp;— real answers from Claude over a small sample workspace (bounded demo; falls back to a script if offline).</span>
       </div>
 
       <div class="demo-term reveal">
@@ -709,17 +709,52 @@
     next();
   }
 
+  var WORKER_URL = "https://codeassist-demo.dangtran.workers.dev";
+
+  function keyFor(m) {
+    return /bhyt|insurance|hein/i.test(m) ? "bhyt" : /null|guard/i.test(m) ? "null" : /test|unit/i.test(m) ? "test" : null;
+  }
+
+  // Try the live Worker (real streamed Claude answer); fall back to the scripted demo on any error.
+  function ask(message) {
+    if (busy) return;
+    setBusy(true);
+    fetch(WORKER_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message }) })
+      .then(function (res) {
+        if (!res.ok || !res.body) throw new Error("worker");
+        body.appendChild(document.createElement("br"));
+        line("").textContent = "you> " + message;
+        var out = line(""); out.textContent = "claude> ";
+        var cur = document.createElement("span"); cur.className = "cursor"; out.appendChild(cur);
+        var reader = res.body.getReader(), dec = new TextDecoder();
+        (function pump() {
+          reader.read().then(function (r) {
+            if (r.done) { cur.remove(); setBusy(false); input.focus(); return; }
+            cur.remove();
+            out.textContent += dec.decode(r.value, { stream: true });
+            out.appendChild(cur);
+            body.scrollTop = body.scrollHeight;
+            pump();
+          }).catch(function () { cur.remove(); setBusy(false); input.focus(); });
+        })();
+      })
+      .catch(function () {                 // Worker offline / quota / CORS → scripted fallback
+        setBusy(false);
+        var k = keyFor(message);
+        play(k ? canned[k] : generic(message));
+      });
+  }
+
   chips.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b || busy) return;
-    play(canned[b.dataset.k]);
+    ask(b.textContent.trim());
   });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var q = input.value.trim(); if (!q || busy) return;
     input.value = "";
-    var key = /bhyt|insurance|hein/i.test(q) ? "bhyt" : /null|guard/i.test(q) ? "null" : /test|unit/i.test(q) ? "test" : null;
-    play(key ? canned[key] : generic(q));
+    ask(q);
   });
 })();
 </script>
