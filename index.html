@@ -634,28 +634,32 @@
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var canned = {
-    bhyt: [
-      { t: 'you> where is the BHYT (health-insurance) check configured?', c: '' },
-      { t: '  · search("HeinGOV")', c: 'tool' },
-      { t: '  · read_file("Library/CheckHeinGOV/CheckHeinGOV.cs")', c: 'tool' },
-      { t: 'claude> The card check lives in CheckHeinGOV.cs. It calls', c: '' },
-      { t: '        HeinGOVManager.Check(dataHein, ...) at line 42, which', c: '' },
-      { t: '        validates the BHYT card against the BHXH gateway.', c: '' }
+    explain: [
+      { t: 'you> What does this code do?', c: '' },
+      { t: '  · list_files(".")', c: 'tool' },
+      { t: '  · read_file("PriceWorker.cs")', c: 'tool' },
+      { t: 'claude> This sample has three C# components:', c: '' },
+      { t: '        • PriceWorker — computes a price from unit price,', c: '' },
+      { t: '          quantity, discount and VAT.', c: '' },
+      { t: '        • CheckHeinGOV — validates a health-insurance card', c: '' },
+      { t: '          via an external gateway.', c: '' },
+      { t: '        • frmTransaction.SaveProcess — builds a DTO and', c: '' },
+      { t: '          posts it to the backend API.', c: '' }
     ],
-    null: [
-      { t: 'you> add null-guards to the save method', c: '' },
+    bug: [
+      { t: 'you> Find a potential bug', c: '' },
+      { t: '  · search("SaveProcess")', c: 'tool' },
       { t: '  · read_file("frmTransaction__Save.cs")', c: 'tool' },
-      { t: 'claude> I\'ll guard the DTO and the API result before use,', c: '' },
-      { t: '        and log the failure path with LogSystem.Error.', c: '' },
-      { t: '  · write_file("frmTransaction__Save.cs")', c: 'tool' },
-      { t: '✓ done — added null checks + structured error logging.', c: 'ok' }
+      { t: 'claude> SaveProcess() uses the API result with no null check', c: '' },
+      { t: '        and no error handling — if the call fails it can', c: '' },
+      { t: '        throw or lose the error silently.', c: '' },
+      { t: '        Fix: guard the result and log the failure path.', c: '' }
     ],
     test: [
-      { t: 'you> write a unit test for the price calculation', c: '' },
-      { t: '  · search("CalculatePrice")', c: 'tool' },
-      { t: '  · read_file("Worker/PriceWorker.cs")', c: 'tool' },
-      { t: 'claude> Writing an xUnit test covering VAT, discount and the', c: '' },
-      { t: '        zero-quantity edge case.', c: '' },
+      { t: 'you> Add a unit test', c: '' },
+      { t: '  · read_file("PriceWorker.cs")', c: 'tool' },
+      { t: 'claude> Adding an xUnit test for Calculate() covering VAT,', c: '' },
+      { t: '        discount and the zero-quantity edge case.', c: '' },
       { t: '  · write_file("Tests/PriceWorkerTests.cs")', c: 'tool' },
       { t: '✓ done — 3 test cases added.', c: 'ok' }
     ]
@@ -666,10 +670,9 @@
     return [
       { t: 'you> ' + query, c: '' },
       { t: '  · search("' + kw + '")', c: 'tool' },
-      { t: '  · read_file(<top match>)', c: 'tool' },
-      { t: 'claude> Based on the workspace, here\'s what I found and', c: '' },
-      { t: '        the change I\'d make. (This is a scripted portfolio', c: '' },
-      { t: '        demo — the real agent runs live on GitHub.)', c: 'p' }
+      { t: '  · read_file("PriceWorker.cs")', c: 'tool' },
+      { t: 'claude> Based on the sample workspace, here is what I found', c: '' },
+      { t: '        and the change I would make for that.', c: '' }
     ];
   }
 
@@ -712,7 +715,10 @@
   var WORKER_URL = "https://codeassist-demo.dangtran.workers.dev";
 
   function keyFor(m) {
-    return /null|guard|bug|fix/i.test(m) ? "null" : /test|unit/i.test(m) ? "test" : /bhyt|insurance|hein/i.test(m) ? "bhyt" : null;
+    if (/bug|fix|null|guard|error/i.test(m)) return "bug";
+    if (/test|unit/i.test(m)) return "test";
+    if (/what|explain|understand|does this|this code|overview/i.test(m)) return "explain";
+    return null;
   }
 
   // Try the live Worker (real streamed Claude answer); fall back to the scripted demo on any error.
