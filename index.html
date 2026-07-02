@@ -442,7 +442,7 @@
       <div class="reveal">
         <p class="eyebrow">Live demo</p>
         <h2 class="section-title">Try the agent</h2>
-        <p class="section-sub">A taste of my <b style="color:var(--accent)">codeassist</b> CLI — the C# coding agent. Pick a prompt or type your own and watch it work the agentic tool-use loop.</p>
+        <p class="section-sub">A live taste of my <b style="color:var(--accent)">codeassist</b> agent — think a mini Cursor / GitHub Copilot, built in C#. <b style="color:var(--text)">No setup needed:</b> click a suggestion below (or type your own) and watch the AI read the code and answer in real time.</p>
         <span class="demo-note">● <b>Live</b>&nbsp;— real answers from Claude over a small sample workspace (bounded demo; falls back to a script if offline).</span>
       </div>
 
@@ -451,11 +451,11 @@
           <span class="d r"></span><span class="d y"></span><span class="d g"></span>
           <span class="t">codeassist — ~/HIS.Desktop</span>
         </div>
-        <div class="demo-body" id="demo-body"><span class="p">codeassist — Claude-powered coding assistant</span><br><span class="p">workspace: ./HIS.Desktop · type a question or pick one below.</span></div>
+        <div class="demo-body" id="demo-body"><span class="p">codeassist — Claude-powered coding assistant</span><br><span class="p">workspace: a small sample C# project · click a suggestion below (no setup needed).</span></div>
         <div class="demo-chips" id="demo-chips">
-          <button data-k="bhyt">where is the BHYT check?</button>
-          <button data-k="null">add null-guards to the save method</button>
-          <button data-k="test">write a unit test for the price calc</button>
+          <button>What does this code do?</button>
+          <button>Find a potential bug</button>
+          <button>Add a unit test</button>
         </div>
         <form class="demo-input" id="demo-form">
           <span class="pfx">you&gt;</span>
@@ -712,7 +712,7 @@
   var WORKER_URL = "https://codeassist-demo.dangtran.workers.dev";
 
   function keyFor(m) {
-    return /bhyt|insurance|hein/i.test(m) ? "bhyt" : /null|guard/i.test(m) ? "null" : /test|unit/i.test(m) ? "test" : null;
+    return /null|guard|bug|fix/i.test(m) ? "null" : /test|unit/i.test(m) ? "test" : /bhyt|insurance|hein/i.test(m) ? "bhyt" : null;
   }
 
   // Try the live Worker (real streamed Claude answer); fall back to the scripted demo on any error.
