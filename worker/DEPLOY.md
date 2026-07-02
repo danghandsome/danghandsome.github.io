@@ -8,7 +8,8 @@ Anthropic API key server-side and streams a bounded answer (cheap model, small
 > `https://codeassist-demo.dangtran.workers.dev` via the Wrangler CLI. The steps
 > below document how it was set up / how to redeploy.
 >
-> **Redeploy after editing `worker.js`:** in `d:\PortfolioWorker`, run
+> **This folder (`Portfolio/worker/`) is the single source of truth** — deploy from
+> right here. **Redeploy after editing `worker.js`:** in this folder, run
 > `npx wrangler deploy`. Update the API key with `npx wrangler secret put ANTHROPIC_API_KEY`.
 > Use a **full-permission** key — a permission-restricted key returns `403 forbidden`.
 
