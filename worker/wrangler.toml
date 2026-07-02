@@ -7,4 +7,4 @@ compatibility_date = "2024-11-01"
 name = "RATE_LIMITER"
 type = "ratelimit"
 namespace_id = "1001"
-simple = { limit = 15, period = 60 }
+simple = { limit = 20, period = 60 }

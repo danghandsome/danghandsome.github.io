@@ -280,6 +280,40 @@
   #robot.fallen .robot-stars { opacity: 1; animation: rspin 1s linear infinite; }
   @keyframes rspin { to { transform: translateX(-50%) rotate(360deg); } }
 
+  /* ---------- RATE-LIMIT MODAL ---------- */
+  .limit-modal { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .limit-modal.open { display: flex; }
+  .limit-modal .lm-backdrop { position: absolute; inset: 0; background: rgba(4,7,12,.74); backdrop-filter: blur(7px); animation: lmFade .3s ease forwards; }
+  @keyframes lmFade { from { opacity: 0; } to { opacity: 1; } }
+  .limit-card {
+    position: relative; z-index: 1; width: min(420px, 92vw); text-align: center;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--accent); border-radius: 20px; padding: 34px 30px 26px;
+    box-shadow: var(--glow), 0 40px 90px -25px rgba(0,0,0,.85);
+    transform-style: preserve-3d;
+  }
+  .limit-modal.open .limit-card { animation: lmIn .6s cubic-bezier(.2,.85,.25,1) forwards; }
+  @keyframes lmIn {
+    from { opacity: 0; transform: perspective(1000px) rotateX(18deg) translateY(40px) scale(.88); }
+    to   { opacity: 1; transform: perspective(1000px) rotateX(0)    translateY(0)   scale(1); }
+  }
+  .limit-card .lm-glow { position: absolute; inset: -1px; border-radius: 20px; pointer-events: none;
+    background: radial-gradient(120px circle at 50% 0%, rgba(45,212,191,.28), transparent 60%); }
+  .lm-robot { width: 74px; height: 88px; margin: 0 auto 16px; display: block; position: relative; z-index: 1;
+    filter: drop-shadow(0 0 14px rgba(45,212,191,.35)); animation: lmBob 1.8s ease-in-out infinite; }
+  @keyframes lmBob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-7px) rotate(-2deg); } }
+  .lm-robot .lm-arm { transform-box: fill-box; transform-origin: top center; animation: lmWave .5s ease-in-out infinite; }
+  @keyframes lmWave { 0%,100% { transform: rotate(4deg); } 50% { transform: rotate(-42deg); } }
+  .limit-card h3 { font-size: 20px; letter-spacing: -.01em; margin-bottom: 8px; position: relative; z-index: 1; }
+  .limit-card p { color: var(--muted); font-size: 14.5px; margin-bottom: 22px; position: relative; z-index: 1; }
+  .lm-links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; position: relative; z-index: 1; }
+  .lm-links a { font-family: var(--mono); font-size: 12.5px; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--line-2); color: var(--text); transition: all .2s; }
+  .lm-links a:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .lm-links a.primary { background: linear-gradient(105deg, var(--accent), var(--accent-2)); color: #04120f; border: none; font-weight: 700; }
+  .lm-links a.primary:hover { box-shadow: var(--glow); color: #04120f; }
+  .lm-close { font-family: var(--mono); font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; position: relative; z-index: 1; }
+  .lm-close:hover { color: var(--text); }
+
   /* reveal on scroll */
   .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
   .reveal.in { opacity: 1; transform: none; }
@@ -291,6 +325,8 @@
     .reveal { opacity: 1; transform: none; transition: none; }
     .badge .live, .term-body .cursor { animation: none; }
     #robot { display: none; }
+    #limit-modal.open .limit-card { animation: none; opacity: 1; transform: none; }
+    .lm-robot, .lm-robot .lm-arm, .lm-backdrop { animation: none; }
   }
 </style>
 </head>
@@ -484,6 +520,35 @@
   </section>
 
   <footer><div class="wrap">© <span id="yr"></span> Tran Hai Dang · Built with plain HTML, CSS &amp; Canvas — no frameworks.</div></footer>
+
+  <!-- rate-limit → connect modal (shows when the demo endpoint returns 429) -->
+  <div class="limit-modal" id="limit-modal" aria-hidden="true">
+    <div class="lm-backdrop" data-lm-close></div>
+    <div class="limit-card">
+      <div class="lm-glow"></div>
+      <svg class="lm-robot" viewBox="0 0 52 64" role="img" aria-label="robot">
+        <line x1="26" y1="9" x2="26" y2="3" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="26" cy="2.5" r="2.2" fill="#2DD4BF"/>
+        <rect x="5" y="31" width="6" height="15" rx="3" fill="#0F141D" stroke="#2DD4BF" stroke-width="2"/>
+        <g class="lm-arm"><rect x="41" y="31" width="6" height="15" rx="3" fill="#0F141D" stroke="#2DD4BF" stroke-width="2"/></g>
+        <rect x="11" y="9" width="30" height="20" rx="6" fill="#0F141D" stroke="#2DD4BF" stroke-width="2"/>
+        <circle cx="20" cy="19" r="2.8" fill="#2DD4BF"/>
+        <circle cx="32" cy="19" r="2.8" fill="#2DD4BF"/>
+        <rect x="13" y="30" width="26" height="21" rx="5" fill="#0F141D" stroke="#2DD4BF" stroke-width="2"/>
+        <circle cx="26" cy="40" r="2.2" fill="#38BDF8"/>
+        <rect x="16" y="50" width="7" height="12" rx="3" fill="#0F141D" stroke="#2DD4BF" stroke-width="2"/>
+        <rect x="29" y="50" width="7" height="12" rx="3" fill="#0F141D" stroke="#2DD4BF" stroke-width="2"/>
+      </svg>
+      <h3>You've reached the demo limit</h3>
+      <p>Connect with me to learn more about the features.</p>
+      <div class="lm-links">
+        <a class="primary" href="https://www.linkedin.com/in/dangtrann/" target="_blank" rel="noopener">Connect on LinkedIn</a>
+        <a href="https://github.com/danghandsome" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:dtranhai47@gmail.com">Email</a>
+      </div>
+      <button class="lm-close" type="button" data-lm-close>Maybe later</button>
+    </div>
+  </div>
 
   <!-- mascot robot: walks, greets, falls over when clicked, then runs off — loops -->
   <div id="robot" aria-hidden="true" title="click me!">
@@ -721,12 +786,18 @@
     return null;
   }
 
+  // Client-side demo cap: after a handful of questions, invite the visitor to connect.
+  var uses = 0, USE_LIMIT = 6;
+
   // Try the live Worker (real streamed Claude answer); fall back to the scripted demo on any error.
   function ask(message) {
     if (busy) return;
+    if (uses >= USE_LIMIT) { showLimitModal(); return; }   // reached demo cap → connect modal
+    uses++;
     setBusy(true);
     fetch(WORKER_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message }) })
       .then(function (res) {
+        if (res.status === 429) { setBusy(false); showLimitModal(); return; }   // rate limited → invite to connect
         if (!res.ok || !res.body) throw new Error("worker");
         body.appendChild(document.createElement("br"));
         line("").textContent = "you> " + message;
@@ -837,6 +908,26 @@
         state = "walk";
       }, 2400);
     }, 1250);
+  });
+})();
+</script>
+
+<script>
+/* ---------- rate-limit → connect modal ---------- */
+(function () {
+  var modal = document.getElementById("limit-modal");
+  if (!modal) return;
+  window.showLimitModal = function () {
+    modal.classList.remove("open");
+    void modal.offsetWidth;            // reflow → replay the 3D entrance each time
+    modal.classList.add("open");
+  };
+  function closeModal() { modal.classList.remove("open"); }
+  modal.addEventListener("click", function (e) {
+    if (e.target.hasAttribute("data-lm-close")) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeModal();
   });
 })();
 </script>
