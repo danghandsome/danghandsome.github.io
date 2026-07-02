@@ -699,6 +699,13 @@
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var canned = {
+    greet: [
+      { t: 'you> hi, how are you', c: '' },
+      { t: 'claude> Hi! I\'m codeassist 🤖 — an AI agent that reads and', c: '' },
+      { t: '        edits code. This demo runs on a small C# sample.', c: '' },
+      { t: '        Try "What does this code do?", "Find a potential', c: '' },
+      { t: '        bug", or "Add a unit test" — or ask about the sample.', c: '' }
+    ],
     explain: [
       { t: 'you> What does this code do?', c: '' },
       { t: '  · list_files(".")', c: 'tool' },
@@ -735,9 +742,10 @@
     return [
       { t: 'you> ' + query, c: '' },
       { t: '  · search("' + kw + '")', c: 'tool' },
-      { t: '  · read_file("PriceWorker.cs")', c: 'tool' },
-      { t: 'claude> Based on the sample workspace, here is what I found', c: '' },
-      { t: '        and the change I would make for that.', c: '' }
+      { t: 'claude> This demo works over a small C# sample (PriceWorker,', c: '' },
+      { t: '        CheckHeinGOV, a save method). I can explain the code,', c: '' },
+      { t: '        find a bug, or write a test — try a suggestion above,', c: '' },
+      { t: '        or ask about one of those files.', c: 'p' }
     ];
   }
 
@@ -780,6 +788,7 @@
   var WORKER_URL = "https://codeassist-demo.dangtran.workers.dev";
 
   function keyFor(m) {
+    if (/^(hi|hii|hello|hey|yo|chào|xin chào)\b|how are you|good (morning|afternoon|evening)|who are you|what can you/i.test(m)) return "greet";
     if (/bug|fix|null|guard|error/i.test(m)) return "bug";
     if (/test|unit/i.test(m)) return "test";
     if (/what|explain|understand|does this|this code|overview/i.test(m)) return "explain";
@@ -818,7 +827,9 @@
       .catch(function () {                 // Worker offline / quota / CORS → scripted fallback
         setBusy(false);
         var k = keyFor(message);
-        play(k ? canned[k] : generic(message));
+        var seq = k ? canned[k].slice() : generic(message);
+        if (k) seq[0] = { t: 'you> ' + message, c: '' };   // echo the visitor's actual wording
+        play(seq);
       });
   }
 
