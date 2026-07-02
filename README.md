@@ -14,35 +14,52 @@ of my C# AI coding agent, **codeassist**, plus a printable CV and a walking masc
 | `cv.html` | ATS-friendly text CV (open → Ctrl+P → Save as PDF) |
 | `CV_TranHaiDang.pdf` | My designed CV (the one linked from the site) |
 | `og.png` / `favicon.svg` | Social-share preview image + tab icon |
-| `worker/` | Cloudflare Worker that powers the **live** agent demo (see `worker/DEPLOY.md`) |
+| `vercel/` | Vercel serverless function that powers the **live** agent demo (see `vercel/README.md`) |
+| `worker/` | *Deprecated* — the original Cloudflare Worker backend (kept for history) |
 
 ## How the live agent demo works
 
-The "Try the agent" section calls a **Cloudflare Worker** that holds the Anthropic
-API key server-side and streams a real Claude answer back to the browser:
+The "Try the agent" section calls a **Vercel serverless function** that holds the
+Anthropic API key server-side and returns a real Claude answer as JSON; the browser
+then types it out character-by-character:
 
 ```
-Browser (portfolio)                Cloudflare Worker                 Anthropic API
+Browser (portfolio)                Vercel function (Node)            Anthropic API
   fetch POST {message}   --->   x-api-key + system(sample repo)  --->  Claude (Haiku)
-  read text stream       <---   re-stream SSE text deltas        <---  streamed answer
+  typewriter the text    <---   { text } JSON                    <---  answer
         |
-        +-- on any error -> falls back to a scripted reply (never breaks)
+        +-- on any error / usage cap -> scripted reply or "connect" modal (never breaks)
 ```
 
-Bounded on purpose, four layers of cost/abuse control:
-- **Per-IP rate limit** — 15 requests / minute / IP (Cloudflare Rate Limiting); spam is blocked with `429` *before* it ever reaches Claude.
+> **Why Vercel, not Cloudflare?** The demo first ran on a Cloudflare Worker, but
+> Anthropic's edge **intermittently blocked Worker-origin IPs** with `403 "Request
+> not allowed"`. Vercel functions run on AWS egress IPs, which aren't blocked — so
+> the demo is reliable. The old Worker stays in `worker/` for reference.
+
+Bounded on purpose, layers of cost/abuse control:
 - **Cheapest model** (Haiku) + **`max_tokens` 500** — each answer costs a fraction of a cent.
+- **Client-side usage cap** — after a few questions the portfolio shows a "connect with me" modal instead of calling the endpoint.
 - **CORS** locked to this origin.
 - **Anthropic spend limit** (auto-reload off) — a hard cap; worst case it simply stops.
 
 ## Deploy
 
 - Site: pushed to `main` -> GitHub Pages serves it automatically.
-- Worker: see [`worker/DEPLOY.md`](worker/DEPLOY.md). Deployed via the Wrangler CLI.
+- Backend: see [`vercel/README.md`](vercel/README.md). Deployed via the Vercel CLI (`vercel --prod`).
 
 ---
 
 ## Changelog
+
+### 2026-07-02 (afternoon) — reliable live demo on Vercel
+- **Moved the demo backend from Cloudflare Worker to a Vercel serverless function**
+  (`vercel/`). Anthropic's edge was blocking Cloudflare Worker egress IPs with
+  `403 "Request not allowed"` (intermittent, then near-constant). Vercel runs on AWS
+  egress, which isn't blocked — verified 3/3 real `200` answers.
+- Portfolio now calls the Vercel endpoint, parses `{ text }` JSON, and **types the
+  answer out client-side** (typewriter). Falls back to a scripted reply on any error.
+- Added a **usage cap + "connect with me" modal** (tech 3D animation, robot icon) so
+  the demo can stay live without risking API spend.
 
 ### 2026-07-02 (morning) — live agent demo
 - **Live demo is now real.** Deployed a Cloudflare Worker (`worker/`) via the

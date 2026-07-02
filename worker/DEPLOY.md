@@ -1,5 +1,10 @@
 # codeassist live demo — Cloudflare Worker deploy guide
 
+> ⚠️ **DEPRECATED — kept for history.** The live demo now runs on Vercel (`../vercel/`).
+> Anthropic's edge blocked this Worker's egress IPs with `403 "Request not allowed"`.
+> See `../vercel/README.md`.
+
+
 Backend that powers the **live** agent demo on the portfolio. It keeps the
 Anthropic API key server-side and streams a bounded answer (cheap model, small
 `max_tokens`) so cost stays tiny and is capped by an Anthropic spend limit.

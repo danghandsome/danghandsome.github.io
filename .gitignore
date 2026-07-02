@@ -1,0 +1,6 @@
+# local tool state — never commit
+.vercel/
+.wrangler/
+worker/.wrangler/
+node_modules/
+*.log
