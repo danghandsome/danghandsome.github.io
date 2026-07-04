@@ -85,10 +85,8 @@
 
   /* ---------- HERO ---------- */
   .hero { padding-top: clamp(56px, 8vw, 90px); position: relative; }
-  #hero-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
-  .wrap { position: relative; z-index: 2; }
   .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(40px, 6vw, 80px); align-items: center; }
-  @media (max-width: 1000px){ .hero-grid { grid-template-columns: 1fr; } #hero-canvas { display: none; } }
+  @media (max-width: 1000px){ .hero-grid { grid-template-columns: 1fr; } }
 
   .badge {
     display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono);
@@ -321,47 +319,27 @@
   .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
   .reveal.in { opacity: 1; transform: none; }
 
-  /* ---------- PAGE TRANSITIONS ---------- */
+  /* ---------- PAGE-LOAD CURTAIN (pure CSS — self-completing, JS-independent) ---------- */
   .page-transition-shell {
-    position: fixed;
-    inset: 0;
-    z-index: 300000;
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
+    position: fixed; inset: 0; z-index: 300000; pointer-events: none;
+    animation: ptShellGone 0s 1.5s forwards;
   }
-  .page-transition-shell.is-active {
-    opacity: 1;
-    visibility: visible;
-  }
-  .page-transition-curtain {
-    position: absolute;
-    inset: 0;
-    background: var(--ground);
-    display: flex;
-  }
-  .page-transition-curtain::before,
-  .page-transition-curtain::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 50vh;
-    background: var(--ground);
-    will-change: transform;
-  }
-  .page-transition-curtain::before { top: 0; transform: translateY(-100%); }
-  .page-transition-curtain::after { bottom: 0; transform: translateY(100%); }
+  .pt-panel { position: absolute; left: 0; width: 100%; height: 51%; background: #060910; will-change: transform; }
+  .pt-panel-top { top: 0; animation: ptTop .85s .35s cubic-bezier(.77,0,.18,1) forwards; }
+  .pt-panel-top::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .7; }
+  .pt-panel-bottom { bottom: 0; animation: ptBottom .85s .35s cubic-bezier(.77,0,.18,1) forwards; }
+  @keyframes ptTop { to { transform: translateY(-103%); } }
+  @keyframes ptBottom { to { transform: translateY(103%); } }
+  @keyframes ptShellGone { to { visibility: hidden; } }
 
-  /* ---------- SMOOTH SCROLL ---------- */
-  html { overflow: visible; }
-  body { overflow: visible; }
-  html.lenis { height: auto; }
-  html.lenis body { height: auto; overflow: visible; }
+  /* ---------- SMOOTH SCROLL (Lenis) ---------- */
+  html.lenis { height: auto; scroll-behavior: auto; }
+  html.lenis body { height: auto; }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     #bg { display: none; }
+    .page-transition-shell { display: none; }
     .terminal { transform: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
     .badge .live, .term-body .cursor { animation: none; }
@@ -373,9 +351,10 @@
 </head>
 <body>
 
-<!-- Page transition curtains -->
-<div class="page-transition-shell">
-  <div class="page-transition-curtain"></div>
+<!-- Page transition curtains (CSS-only reveal — cannot block the page even if JS fails) -->
+<div class="page-transition-shell" aria-hidden="true">
+  <div class="pt-panel pt-panel-top"></div>
+  <div class="pt-panel pt-panel-bottom"></div>
 </div>
 
 <canvas id="bg"></canvas>
@@ -400,9 +379,9 @@
   <header class="hero">
     <div class="wrap hero-grid">
       <div class="reveal">
-        <span class="badge"><span class="live"></span> AI Engineer · Mooniverse 360</span>
+        <span class="badge"><span class="live"></span> Software engineer · AI &amp; immersive tech</span>
         <h1>Build intelligent<br><span class="grad">3D experiences</span>.</h1>
-        <p class="lead">I architect production systems — from hospital workflows (1M+ transactions) to interactive 3D platforms. Expert in C# / .NET, AI agents, and systems at scale.</p>
+        <p class="lead">I build production systems — from mission-critical hospital workflows to AI-powered tooling — and I'm bringing that engineering depth into interactive 3D platforms. C# / .NET, AI agents, systems at scale.</p>
         <div class="cta-row">
           <a class="btn primary" href="#projects">Explore projects →</a>
           <a class="btn ghost" href="CV_TranHaiDang.pdf" target="_blank" rel="noopener">📄 View CV ↗</a>
@@ -426,8 +405,6 @@
       </div>
     </div>
   </header>
-
-  <canvas id="hero-canvas"></canvas>
 
   <!-- ABOUT -->
   <section id="about">
@@ -997,12 +974,9 @@
 })();
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer fetchpriority="high"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer fetchpriority="high"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer fetchpriority="high"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
-<script src="js/noise.js?v=1" defer></script>
-<script src="js/transitions.js?v=1" defer fetchpriority="low"></script>
-<script src="js/main.js?v=1" defer></script>
+<script src="js/main.js?v=2" defer></script>
 </body>
 </html>
