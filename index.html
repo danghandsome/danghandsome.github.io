@@ -321,6 +321,44 @@
   .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
   .reveal.in { opacity: 1; transform: none; }
 
+  /* ---------- PAGE TRANSITIONS ---------- */
+  .page-transition-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 300000;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .page-transition-shell.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .page-transition-curtain {
+    position: absolute;
+    inset: 0;
+    background: var(--ground);
+    display: flex;
+  }
+  .page-transition-curtain::before,
+  .page-transition-curtain::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50vh;
+    background: var(--ground);
+    will-change: transform;
+  }
+  .page-transition-curtain::before { top: 0; transform: translateY(-100%); }
+  .page-transition-curtain::after { bottom: 0; transform: translateY(100%); }
+
+  /* ---------- SMOOTH SCROLL ---------- */
+  html { overflow: visible; }
+  body { overflow: visible; }
+  html.lenis { height: auto; }
+  html.lenis body { height: auto; overflow: visible; }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     #bg { display: none; }
@@ -334,6 +372,11 @@
 </style>
 </head>
 <body>
+
+<!-- Page transition curtains -->
+<div class="page-transition-shell">
+  <div class="page-transition-curtain"></div>
+</div>
 
 <canvas id="bg"></canvas>
 
@@ -954,7 +997,12 @@
 })();
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="js/three-scene.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer fetchpriority="high"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer fetchpriority="high"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer fetchpriority="high"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+<script src="js/noise.js?v=1" defer></script>
+<script src="js/transitions.js?v=1" defer fetchpriority="low"></script>
+<script src="js/main.js?v=1" defer></script>
 </body>
 </html>
