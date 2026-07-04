@@ -9,13 +9,15 @@
   // Scene setup
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, precision: 'highp' });
 
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x0a0e1a, 1);
+  renderer.setClearColor(0x0a0e1a, 0.95);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.1;
+  renderer.shadowMap.enabled = false;
+  renderer.shadowMap.type = THREE.PCFShadowShadowMap;
 
   camera.position.z = 40;
 
