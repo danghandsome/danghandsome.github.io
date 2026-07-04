@@ -33,78 +33,100 @@
   pointLight2.position.set(-20, 15, 10);
   scene.add(pointLight2);
 
-  // Orbs data
+  // Planets data — adjusted positions to stay in viewport
   var orbs = [
     {
-      name: "AI Agent",
+      name: "AI Core",
       color: 0x00d9ff,
-      size: 3.5,
-      x: 0,
-      y: 0,
+      size: 3.2,
+      x: -8,
+      y: 2,
       z: 0,
-      info: "codeassist — tool-use loop"
+      info: "codeassist — agentic loop",
+      hasRing: false
     },
     {
-      name: "HIS Platform",
+      name: "HIS World",
       color: 0x00f5a0,
-      size: 2.5,
-      x: 20,
-      y: 12,
-      z: -10,
-      info: "Production hospital system"
+      size: 2.2,
+      x: 8,
+      y: 8,
+      z: -6,
+      info: "Production hospital system",
+      hasRing: true
     },
     {
-      name: "Projects",
+      name: "Projects Galaxy",
       color: 0xff006e,
-      size: 2.5,
-      x: -18,
-      y: 10,
-      z: -8,
-      info: "Healthcare + AI engineering"
+      size: 2.0,
+      x: -12,
+      y: -6,
+      z: -5,
+      info: "Healthcare + AI engineering",
+      hasRing: false
     },
     {
-      name: "Skills",
+      name: "Skills Moon",
       color: 0x00d9ff,
-      size: 1.8,
-      x: 15,
-      y: -15,
-      z: 5,
-      info: "C#, .NET, Claude API, WinForms"
+      size: 1.4,
+      x: 10,
+      y: -8,
+      z: 3,
+      info: "C#, .NET, Claude API",
+      hasRing: false
     },
     {
-      name: "3D & Web",
+      name: "3D Space",
       color: 0x00f5a0,
-      size: 1.8,
-      x: -16,
-      y: -13,
-      z: 3,
-      info: "Three.js, responsive design"
+      size: 1.3,
+      x: -6,
+      y: -10,
+      z: 2,
+      info: "Three.js, WebGL",
+      hasRing: true
     }
   ];
 
-  // Create orbs with glow
+  // Create planets with optional rings
   var orbMeshes = [];
   orbs.forEach(function (orbData) {
+    var group = new THREE.Group();
+    group.position.set(orbData.x, orbData.y, orbData.z);
+    group.userData.targetPos = { x: orbData.x, y: orbData.y, z: orbData.z };
+    group.userData.info = orbData.info;
+    group.userData.name = orbData.name;
+
+    // Planet body
     var geometry = new THREE.IcosahedronGeometry(orbData.size, 5);
     var material = new THREE.MeshStandardMaterial({
       color: orbData.color,
-      metalness: 0.3,
-      roughness: 0.4,
+      metalness: 0.2,
+      roughness: 0.5,
       emissive: orbData.color,
-      emissiveIntensity: 0.5
+      emissiveIntensity: 0.6
     });
-    var mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(orbData.x, orbData.y, orbData.z);
-    mesh.userData.info = orbData.info;
-    mesh.userData.name = orbData.name;
-    mesh.userData.velocity = {
-      x: (Math.random() - 0.5) * 0.02,
-      y: (Math.random() - 0.5) * 0.02,
-      z: (Math.random() - 0.5) * 0.02
-    };
-    mesh.userData.targetPos = { x: orbData.x, y: orbData.y, z: orbData.z };
-    scene.add(mesh);
-    orbMeshes.push(mesh);
+    var planetMesh = new THREE.Mesh(geometry, material);
+    group.add(planetMesh);
+
+    // Planet rings (for some planets)
+    if (orbData.hasRing) {
+      var ringGeometry = new THREE.TorusGeometry(orbData.size * 1.6, orbData.size * 0.4, 16, 100);
+      var ringMaterial = new THREE.MeshStandardMaterial({
+        color: orbData.color,
+        metalness: 0.1,
+        roughness: 0.6,
+        emissive: orbData.color,
+        emissiveIntensity: 0.3,
+        transparent: true,
+        opacity: 0.7
+      });
+      var ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
+      ringMesh.rotation.x = Math.random() * 0.5 + 0.3;
+      group.add(ringMesh);
+    }
+
+    scene.add(group);
+    orbMeshes.push(group);
   });
 
   // Mouse interaction
@@ -149,20 +171,24 @@
     scene.rotation.y = rotation.y;
     scene.rotation.x = rotation.x;
 
-    // Animate orbs — smooth, subtle floating
-    orbMeshes.forEach(function (orb) {
-      var basePos = orb.userData.targetPos;
-      // Reduced amplitude & slower oscillation = less flicker
-      orb.position.x = basePos.x + Math.sin(time * 0.25 + orb.position.x * 0.1) * 0.8;
-      orb.position.y = basePos.y + Math.cos(time * 0.2 + orb.position.y * 0.1) * 0.8;
-      orb.position.z = basePos.z + Math.sin(time * 0.15 + orb.position.z * 0.1) * 0.6;
+    // Animate planets — smooth floating with orbital motion
+    orbMeshes.forEach(function (planet, idx) {
+      var basePos = planet.userData.targetPos;
+      var phase = idx * 0.4; // stagger animation phases
 
-      // Gentle rotation
-      orb.rotation.x += 0.0008;
-      orb.rotation.y += 0.0012;
+      // Subtle floating motion
+      planet.position.x = basePos.x + Math.sin(time * 0.2 + phase) * 0.6;
+      planet.position.y = basePos.y + Math.cos(time * 0.18 + phase) * 0.5;
+      planet.position.z = basePos.z + Math.sin(time * 0.12 + phase) * 0.4;
 
-      // Remove aggressive pulse — keep steady glow instead
-      orb.scale.set(1, 1, 1);
+      // Gentle self-rotation
+      planet.children[0].rotation.x += 0.0006;
+      planet.children[0].rotation.y += 0.001;
+
+      // Ring rotation (if present)
+      if (planet.children[1]) {
+        planet.children[1].rotation.z += 0.0003;
+      }
     });
 
     // Lights follow camera smoothly
