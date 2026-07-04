@@ -19,16 +19,17 @@
 <meta name="twitter:image" content="https://danghandsome.github.io/og.png">
 <style>
   :root {
-    --ground: #080B11;
-    --panel: #0F141D;
-    --panel-2: #131A25;
-    --text: #E7EDF4;
-    --muted: #7C8896;
-    --accent: #2DD4BF;
-    --accent-2: #38BDF8;
-    --line: rgba(255,255,255,.08);
-    --line-2: rgba(255,255,255,.14);
-    --glow: 0 0 40px rgba(45,212,191,.22);
+    --ground: #0a0e1a;
+    --panel: #0f1425;
+    --panel-2: #141c2e;
+    --text: #e0e7ff;
+    --muted: #8892a8;
+    --accent: #00d9ff;
+    --accent-2: #ff006e;
+    --accent-3: #00f5a0;
+    --line: rgba(255,255,255,.07);
+    --line-2: rgba(255,255,255,.12);
+    --glow: 0 0 40px rgba(0,217,255,.25);
     --mono: "JetBrains Mono", "Cascadia Mono", "Consolas", ui-monospace, monospace;
     --sans: "Segoe UI", "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
   }
@@ -83,9 +84,12 @@
   section { padding: clamp(64px, 10vw, 120px) 0; }
 
   /* ---------- HERO ---------- */
-  .hero { padding-top: clamp(56px, 8vw, 90px); }
-  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(30px, 5vw, 64px); align-items: center; }
-  @media (max-width: 900px){ .hero-grid { grid-template-columns: 1fr; } }
+  .hero { padding-top: clamp(56px, 8vw, 90px); position: relative; min-height: 100vh; display: flex; align-items: center; }
+  .hero-canvas-wrap { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  #hero-canvas { display: block; width: 100%; height: 100%; }
+  .hero-content { position: relative; z-index: 2; width: 100%; }
+  .hero-content .wrap { max-width: 860px; }
+  @media (max-width: 900px){ .hero { min-height: auto; } }
 
   .badge {
     display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono);
@@ -352,30 +356,25 @@
 
   <!-- HERO -->
   <header class="hero">
-    <div class="wrap hero-grid">
-      <div class="reveal">
-        <span class="badge"><span class="live"></span> Building software that runs hospitals</span>
-        <h1>Software developer<br>for <span class="grad">healthcare &amp; automation</span>.</h1>
-        <p class="lead">I build and maintain a large C# / .NET hospital system — and wire modern AI agents into the workflow. I turn manual, repetitive engineering into tooling that ships itself.</p>
-        <div class="cta-row">
-          <a class="btn primary" href="#projects">Explore projects →</a>
-          <a class="btn ghost" href="CV_TranHaiDang.pdf" target="_blank" rel="noopener">📄 View CV ↗</a>
-          <a class="btn ghost" href="#contact">Get in touch</a>
-        </div>
-        <div class="stats">
-          <div class="stat"><div class="n"><b>1</b> yr+</div><div class="l">On the HIS platform</div></div>
-          <div class="stat"><div class="n"><b>60</b>+</div><div class="l">Releases shipped</div></div>
-          <div class="stat"><div class="n"><b>8</b></div><div class="l">Hospital modules</div></div>
-        </div>
-      </div>
-
-      <div class="reveal term-3d">
-        <div class="terminal">
-          <div class="term-head">
-            <span class="d r"></span><span class="d y"></span><span class="d g"></span>
-            <span class="t">codeassist — ~/HIS.Desktop</span>
+    <div class="hero-canvas-wrap">
+      <canvas id="hero-canvas"></canvas>
+    </div>
+    <div class="hero-content">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="badge"><span class="live"></span> AI Engineer for immersive spaces</span>
+          <h1>Build intelligent<br><span class="grad">3D experiences</span>.</h1>
+          <p class="lead">I architect production systems that scale — from hospital workflows to interactive 3D platforms. Expert in C# / .NET, AI agents, and systems that handle millions of transactions. Currently building at Mooniverse 360.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="#projects">Explore projects →</a>
+            <a class="btn ghost" href="CV_TranHaiDang.pdf" target="_blank" rel="noopener">📄 View CV ↗</a>
+            <a class="btn ghost" href="#contact">Get in touch</a>
           </div>
-          <div class="term-body" id="term"></div>
+          <div class="stats">
+            <div class="stat"><div class="n"><b>1</b> yr+</div><div class="l">Production HIS platform</div></div>
+            <div class="stat"><div class="n"><b>60</b>+</div><div class="l">Releases shipped</div></div>
+            <div class="stat"><div class="n"><b>∞</b></div><div class="l">AI-assisted workflows</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -948,5 +947,8 @@
   });
 })();
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/three-scene.js"></script>
 </body>
 </html>
