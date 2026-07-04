@@ -87,6 +87,63 @@
     }
   ];
 
+  // Procedural planet texture generator
+  function createPlanetTexture(name, color) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+    var ctx = canvas.getContext("2d");
+
+    // Base color
+    ctx.fillStyle = "#" + color.toString(16).padStart(6, "0");
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Planet-specific details
+    if (name.includes("Earth")) {
+      // Add continents-like patterns
+      ctx.fillStyle = "rgba(76,140,56,0.4)";
+      for (var i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random() * 512, Math.random() * 512, Math.random() * 80 + 30, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Clouds
+      ctx.fillStyle = "rgba(255,255,255,0.3)";
+      for (var i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random() * 512, Math.random() * 512, Math.random() * 60 + 20, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (name.includes("Jupiter")) {
+      // Add storm bands
+      ctx.fillStyle = "rgba(200,140,60,0.3)";
+      for (var y = 0; y < canvas.height; y += 40) {
+        ctx.fillRect(0, y, canvas.width, 20);
+      }
+      ctx.fillStyle = "rgba(139,100,50,0.4)";
+      for (var y = 20; y < canvas.height; y += 40) {
+        ctx.fillRect(0, y, canvas.width, 20);
+      }
+    } else if (name.includes("Mars")) {
+      // Rough surface
+      ctx.fillStyle = "rgba(180,100,80,0.3)";
+      for (var i = 0; i < 100; i++) {
+        ctx.fillRect(Math.random() * 512, Math.random() * 512, Math.random() * 20 + 5, Math.random() * 20 + 5);
+      }
+    } else if (name.includes("Saturn")) {
+      // Banded appearance
+      ctx.fillStyle = "rgba(200,180,100,0.2)";
+      for (var y = 0; y < canvas.height; y += 35) {
+        ctx.fillRect(0, y, canvas.width, 15);
+      }
+    }
+
+    var texture = new THREE.CanvasTexture(canvas);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    return texture;
+  }
+
   // Create planets with optional rings
   var orbMeshes = [];
   orbs.forEach(function (orbData) {
@@ -96,32 +153,36 @@
     group.userData.info = orbData.info;
     group.userData.name = orbData.name;
 
-    // Planet body
-    var geometry = new THREE.IcosahedronGeometry(orbData.size, 5);
+    // Planet body with texture
+    var geometry = new THREE.SphereGeometry(orbData.size, 32, 32);
+    var texture = createPlanetTexture(orbData.name, orbData.color);
     var material = new THREE.MeshStandardMaterial({
-      color: orbData.color,
-      metalness: 0.2,
-      roughness: 0.5,
+      map: texture,
+      metalness: 0.1,
+      roughness: 0.7,
+      emissiveMap: texture,
       emissive: orbData.color,
-      emissiveIntensity: 0.6
+      emissiveIntensity: 0.4
     });
     var planetMesh = new THREE.Mesh(geometry, material);
     group.add(planetMesh);
 
     // Planet rings (for some planets)
     if (orbData.hasRing) {
-      var ringGeometry = new THREE.TorusGeometry(orbData.size * 1.6, orbData.size * 0.4, 16, 100);
+      var ringGeometry = new THREE.TorusGeometry(orbData.size * 1.8, orbData.size * 0.5, 16, 100);
+      var ringTexture = createPlanetTexture(orbData.name + "_ring", orbData.color);
       var ringMaterial = new THREE.MeshStandardMaterial({
-        color: orbData.color,
-        metalness: 0.1,
-        roughness: 0.6,
+        map: ringTexture,
+        metalness: 0.05,
+        roughness: 0.8,
         emissive: orbData.color,
-        emissiveIntensity: 0.3,
+        emissiveIntensity: 0.2,
         transparent: true,
-        opacity: 0.7
+        opacity: 0.8,
+        side: THREE.DoubleSide
       });
       var ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
-      ringMesh.rotation.x = Math.random() * 0.5 + 0.3;
+      ringMesh.rotation.x = 0.4 + Math.random() * 0.3;
       group.add(ringMesh);
     }
 
