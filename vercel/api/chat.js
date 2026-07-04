@@ -36,7 +36,7 @@ const SYSTEM =
   "sample workspace below. If asked to change code, describe the change and show a short snippet. " +
   "You cannot access any real files — only this sample.\n" + SAMPLE_WORKSPACE;
 
-export default = async (req, res) => {
+export default async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "https://danghandsome.github.io");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
