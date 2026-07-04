@@ -1,12 +1,10 @@
-// 3D Interactive Hero Scene — Mooniverse VR theme
-// Floating orbs representing AI, projects, and skills
+// 3D Hero Background — Node Network (Dynamic)
+// Mooniverse theme: cyan/magenta accent lines, subtle animated nodes
 
 (function () {
-  // Viewport check
   var canvas = document.getElementById("hero-canvas");
   if (!canvas) return;
 
-  // Scene setup
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, precision: 'highp' });
@@ -16,178 +14,64 @@
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
-  renderer.shadowMap.enabled = false;
-  renderer.shadowMap.type = THREE.PCFShadowShadowMap;
 
-  camera.position.z = 40;
+  camera.position.z = 50;
 
   // Lighting
-  var ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+  var ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
   scene.add(ambientLight);
 
-  var pointLight1 = new THREE.PointLight(0x00d9ff, 1.5, 100);
-  pointLight1.position.set(20, 20, 20);
-  scene.add(pointLight1);
+  var pointLight = new THREE.PointLight(0x00d9ff, 0.8, 150);
+  pointLight.position.set(30, 30, 30);
+  scene.add(pointLight);
 
-  var pointLight2 = new THREE.PointLight(0xff006e, 1.2, 100);
-  pointLight2.position.set(-20, 15, 10);
-  scene.add(pointLight2);
+  // Create node network
+  var nodeCount = 40;
+  var nodes = [];
+  var nodeGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+  var nodeMaterial = new THREE.MeshStandardMaterial({
+    color: 0x00d9ff,
+    metalness: 0.5,
+    roughness: 0.3,
+    emissive: 0x00d9ff,
+    emissiveIntensity: 0.4
+  });
 
-  // Solar System planets — real colors from our solar system
-  var orbs = [
-    {
-      name: "Sun (AI Core)",
-      color: 0xfdb813,  // Golden yellow
-      size: 3.2,
-      x: -8,
-      y: 2,
-      z: 0,
-      info: "codeassist — agentic loop",
-      hasRing: false
-    },
-    {
-      name: "Earth (HIS)",
-      color: 0x4b9fd8,  // Ocean blue
-      size: 2.2,
-      x: 8,
-      y: 8,
-      z: -6,
-      info: "Production hospital system",
-      hasRing: false
-    },
-    {
-      name: "Mars (Projects)",
-      color: 0xe27b58,  // Rusty red
-      size: 2.0,
-      x: -12,
-      y: -6,
-      z: -5,
-      info: "Healthcare + AI engineering",
-      hasRing: false
-    },
-    {
-      name: "Saturn (Skills)",
-      color: 0xfad5a5,  // Pale yellow
-      size: 1.4,
-      x: 10,
-      y: -8,
-      z: 3,
-      info: "C#, .NET, Claude API",
-      hasRing: true
-    },
-    {
-      name: "Jupiter (3D)",
-      color: 0xc88b3a,  // Orange-brown
-      size: 1.8,
-      x: -6,
-      y: -10,
-      z: 2,
-      info: "Three.js, WebGL, immersive",
-      hasRing: false
-    }
-  ];
-
-  // Procedural planet texture generator
-  function createPlanetTexture(name, color) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 512;
-    var ctx = canvas.getContext("2d");
-
-    // Base color
-    ctx.fillStyle = "#" + color.toString(16).padStart(6, "0");
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Planet-specific details
-    if (name.includes("Earth")) {
-      // Add continents-like patterns
-      ctx.fillStyle = "rgba(76,140,56,0.4)";
-      for (var i = 0; i < 5; i++) {
-        ctx.beginPath();
-        ctx.arc(Math.random() * 512, Math.random() * 512, Math.random() * 80 + 30, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      // Clouds
-      ctx.fillStyle = "rgba(255,255,255,0.3)";
-      for (var i = 0; i < 3; i++) {
-        ctx.beginPath();
-        ctx.arc(Math.random() * 512, Math.random() * 512, Math.random() * 60 + 20, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (name.includes("Jupiter")) {
-      // Add storm bands
-      ctx.fillStyle = "rgba(200,140,60,0.3)";
-      for (var y = 0; y < canvas.height; y += 40) {
-        ctx.fillRect(0, y, canvas.width, 20);
-      }
-      ctx.fillStyle = "rgba(139,100,50,0.4)";
-      for (var y = 20; y < canvas.height; y += 40) {
-        ctx.fillRect(0, y, canvas.width, 20);
-      }
-    } else if (name.includes("Mars")) {
-      // Rough surface
-      ctx.fillStyle = "rgba(180,100,80,0.3)";
-      for (var i = 0; i < 100; i++) {
-        ctx.fillRect(Math.random() * 512, Math.random() * 512, Math.random() * 20 + 5, Math.random() * 20 + 5);
-      }
-    } else if (name.includes("Saturn")) {
-      // Banded appearance
-      ctx.fillStyle = "rgba(200,180,100,0.2)";
-      for (var y = 0; y < canvas.height; y += 35) {
-        ctx.fillRect(0, y, canvas.width, 15);
-      }
-    }
-
-    var texture = new THREE.CanvasTexture(canvas);
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearFilter;
-    return texture;
+  for (var i = 0; i < nodeCount; i++) {
+    var nodeMesh = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
+    var x = (Math.random() - 0.5) * 100;
+    var y = (Math.random() - 0.5) * 100;
+    var z = (Math.random() - 0.5) * 80;
+    nodeMesh.position.set(x, y, z);
+    nodeMesh.userData.targetPos = { x: x, y: y, z: z };
+    nodeMesh.userData.velocity = {
+      x: (Math.random() - 0.5) * 0.02,
+      y: (Math.random() - 0.5) * 0.02,
+      z: (Math.random() - 0.5) * 0.02
+    };
+    scene.add(nodeMesh);
+    nodes.push(nodeMesh);
   }
 
-  // Create planets with optional rings
-  var orbMeshes = [];
-  orbs.forEach(function (orbData) {
-    var group = new THREE.Group();
-    group.position.set(orbData.x, orbData.y, orbData.z);
-    group.userData.targetPos = { x: orbData.x, y: orbData.y, z: orbData.z };
-    group.userData.info = orbData.info;
-    group.userData.name = orbData.name;
+  // Create connecting lines between nearby nodes
+  var lineGeometry = new THREE.BufferGeometry();
+  var lineMaterial = new THREE.LineBasicMaterial({
+    color: 0x00d9ff,
+    transparent: true,
+    opacity: 0.2,
+    fog: false
+  });
+  var lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+  scene.add(lines);
 
-    // Planet body with texture
-    var geometry = new THREE.SphereGeometry(orbData.size, 32, 32);
-    var texture = createPlanetTexture(orbData.name, orbData.color);
-    var material = new THREE.MeshStandardMaterial({
-      map: texture,
-      metalness: 0.1,
-      roughness: 0.7,
-      emissiveMap: texture,
-      emissive: orbData.color,
-      emissiveIntensity: 0.4
-    });
-    var planetMesh = new THREE.Mesh(geometry, material);
-    group.add(planetMesh);
+  // Mouse interaction
+  var mouse = { x: 0, y: 0 };
+  var rotation = { x: 0, y: 0 };
+  var targetRotation = { x: 0, y: 0 };
 
-    // Planet rings (for some planets)
-    if (orbData.hasRing) {
-      var ringGeometry = new THREE.TorusGeometry(orbData.size * 1.8, orbData.size * 0.5, 16, 100);
-      var ringTexture = createPlanetTexture(orbData.name + "_ring", orbData.color);
-      var ringMaterial = new THREE.MeshStandardMaterial({
-        map: ringTexture,
-        metalness: 0.05,
-        roughness: 0.8,
-        emissive: orbData.color,
-        emissiveIntensity: 0.2,
-        transparent: true,
-        opacity: 0.8,
-        side: THREE.DoubleSide
-      });
-      var ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
-      ringMesh.rotation.x = 0.4 + Math.random() * 0.3;
-      group.add(ringMesh);
-    }
-
-    scene.add(group);
-    orbMeshes.push(group);
+  document.addEventListener("mousemove", function (e) {
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
   });
 
   // Mouse interaction
@@ -216,45 +100,49 @@
     camera.position.z = 40 / zoom;
   }, { passive: true });
 
-  // Floating motion
+  // Animation loop
   var time = 0;
   function animate() {
     requestAnimationFrame(animate);
     time += 0.0016;
 
-    // Rotate scene based on mouse
-    if (mouse.down) {
-      targetRotation.y += mouse.x * 0.05;
-      targetRotation.x += mouse.y * 0.05;
-    }
-    rotation.y += (targetRotation.y - rotation.y) * 0.08;
-    rotation.x += (targetRotation.x - rotation.x) * 0.08;
-    scene.rotation.y = rotation.y;
-    scene.rotation.x = rotation.x;
+    // Subtle auto-rotation
+    scene.rotation.y += 0.0002;
+    scene.rotation.x += Math.sin(time * 0.5) * 0.0001;
 
-    // Animate planets — smooth floating with orbital motion
-    orbMeshes.forEach(function (planet, idx) {
-      var basePos = planet.userData.targetPos;
-      var phase = idx * 0.4; // stagger animation phases
+    // Animate nodes
+    nodes.forEach(function (node) {
+      var basePos = node.userData.targetPos;
+      // Gentle floating
+      node.position.x = basePos.x + Math.sin(time * 0.3 + basePos.x) * 2;
+      node.position.y = basePos.y + Math.cos(time * 0.25 + basePos.y) * 2;
+      node.position.z = basePos.z + Math.sin(time * 0.2 + basePos.z) * 1.5;
 
-      // Subtle floating motion
-      planet.position.x = basePos.x + Math.sin(time * 0.2 + phase) * 0.6;
-      planet.position.y = basePos.y + Math.cos(time * 0.18 + phase) * 0.5;
-      planet.position.z = basePos.z + Math.sin(time * 0.12 + phase) * 0.4;
+      // Subtle rotation
+      node.rotation.x += 0.0005;
+      node.rotation.y += 0.0008;
 
-      // Gentle self-rotation
-      planet.children[0].rotation.x += 0.0006;
-      planet.children[0].rotation.y += 0.001;
-
-      // Ring rotation (if present)
-      if (planet.children[1]) {
-        planet.children[1].rotation.z += 0.0003;
-      }
+      // Pulse glow
+      var glow = 0.3 + Math.sin(time * 2 + basePos.x) * 0.2;
+      node.material.emissiveIntensity = glow;
     });
 
-    // Lights follow camera smoothly
-    pointLight1.position.copy(camera.position).normalize().multiplyScalar(50);
-    pointLight2.position.copy(camera.position).normalize().multiplyScalar(-40);
+    // Update connecting lines
+    var positions = [];
+    var maxDist = 30;
+    for (var i = 0; i < nodes.length; i++) {
+      for (var j = i + 1; j < nodes.length; j++) {
+        var dist = nodes[i].position.distanceTo(nodes[j].position);
+        if (dist < maxDist) {
+          positions.push(nodes[i].position.x, nodes[i].position.y, nodes[i].position.z);
+          positions.push(nodes[j].position.x, nodes[j].position.y, nodes[j].position.z);
+        }
+      }
+    }
+    lineGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+
+    // Lights follow scene
+    pointLight.position.copy(camera.position).normalize().multiplyScalar(50);
 
     renderer.render(scene, camera);
   }
