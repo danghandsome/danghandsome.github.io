@@ -147,24 +147,23 @@
     scene.rotation.y = rotation.y;
     scene.rotation.x = rotation.x;
 
-    // Animate orbs
+    // Animate orbs — smooth, subtle floating
     orbMeshes.forEach(function (orb) {
-      // Floating motion
       var basePos = orb.userData.targetPos;
-      orb.position.x = basePos.x + Math.sin(time * 0.5 + orb.position.x) * 1.5;
-      orb.position.y = basePos.y + Math.cos(time * 0.4 + orb.position.y) * 1.5;
-      orb.position.z = basePos.z + Math.sin(time * 0.3 + orb.position.z) * 1.2;
+      // Reduced amplitude & slower oscillation = less flicker
+      orb.position.x = basePos.x + Math.sin(time * 0.25 + orb.position.x * 0.1) * 0.8;
+      orb.position.y = basePos.y + Math.cos(time * 0.2 + orb.position.y * 0.1) * 0.8;
+      orb.position.z = basePos.z + Math.sin(time * 0.15 + orb.position.z * 0.1) * 0.6;
 
-      // Rotation
-      orb.rotation.x += 0.002;
-      orb.rotation.y += 0.003;
+      // Gentle rotation
+      orb.rotation.x += 0.0008;
+      orb.rotation.y += 0.0012;
 
-      // Pulse effect
-      var scale = 1 + Math.sin(time * 2) * 0.08;
-      orb.scale.set(scale, scale, scale);
+      // Remove aggressive pulse — keep steady glow instead
+      orb.scale.set(1, 1, 1);
     });
 
-    // Lights follow camera
+    // Lights follow camera smoothly
     pointLight1.position.copy(camera.position).normalize().multiplyScalar(50);
     pointLight2.position.copy(camera.position).normalize().multiplyScalar(-40);
 
