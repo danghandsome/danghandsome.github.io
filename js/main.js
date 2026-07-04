@@ -1,12 +1,13 @@
 // Main animation & smooth scroll orchestration
 (function () {
   // Wait for GSAP, ScrollTrigger, Lenis to load
-  var checkLibs = setInterval(function () {
-    if (window.gsap && window.ScrollTrigger && window.Lenis) {
-      clearInterval(checkLibs);
+  function checkLibs() {
+    if (window.gsap && window.gsap.ticker && window.Lenis) {
       init();
+    } else {
+      setTimeout(checkLibs, 100);
     }
-  }, 100);
+  }
 
   function init() {
     // Initialize Lenis smooth scroll
@@ -166,5 +167,12 @@
         });
       });
     });
+  }
+
+  // Start checking for libraries
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkLibs);
+  } else {
+    checkLibs();
   }
 })();

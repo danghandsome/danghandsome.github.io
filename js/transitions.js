@@ -1,20 +1,28 @@
 // Page transitions with GSAP curtain reveal effect
 (function () {
-  var shell = document.querySelector(".page-transition-shell");
-  var curtain = document.querySelector(".page-transition-curtain");
+  function initTransitions() {
+    var shell = document.querySelector(".page-transition-shell");
+    var curtain = document.querySelector(".page-transition-curtain");
 
-  if (!shell || !curtain) return;
+    if (!shell || !curtain) return false;
 
-  // Register ScrollTrigger with GSAP (will be called after GSAP loads)
-  var checkGSAP = setInterval(function () {
-    if (window.gsap && window.gsap.registerPlugin) {
-      clearInterval(checkGSAP);
-      gsap.registerPlugin(ScrollTrigger);
-      init();
+    // Register ScrollTrigger with GSAP (will be called after GSAP loads)
+    if (!window.gsap || !window.gsap.registerPlugin) {
+      return false;
     }
-  }, 100);
 
-  function init() {
+    gsap.registerPlugin(ScrollTrigger);
+    init(shell, curtain);
+    return true;
+  }
+
+  function checkAndInit() {
+    if (!initTransitions()) {
+      setTimeout(checkAndInit, 100);
+    }
+  }
+
+  function init(shell, curtain) {
     // Animate reveal on page load
     function revealPage() {
       var tl = gsap.timeline();
@@ -74,12 +82,20 @@
     });
   }
 
-  // Store transition data in sessionStorage for next page load
-  window.addEventListener("beforeunload", function () {
-    try {
-      sessionStorage.setItem("nudot:page-transition", JSON.stringify({
-        at: Date.now()
-      }));
-    } catch (e) {}
-  });
+    // Store transition data in sessionStorage for next page load
+    window.addEventListener("beforeunload", function () {
+      try {
+        sessionStorage.setItem("nudot:page-transition", JSON.stringify({
+          at: Date.now()
+        }));
+      } catch (e) {}
+    });
+  }
+
+  // Start initialization
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkAndInit);
+  } else {
+    checkAndInit();
+  }
 })();
