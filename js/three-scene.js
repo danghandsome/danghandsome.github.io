@@ -33,11 +33,11 @@
   pointLight2.position.set(-20, 15, 10);
   scene.add(pointLight2);
 
-  // Planets data — adjusted positions to stay in viewport
+  // Solar System planets — real colors from our solar system
   var orbs = [
     {
-      name: "AI Core",
-      color: 0x00d9ff,
+      name: "Sun (AI Core)",
+      color: 0xfdb813,  // Golden yellow
       size: 3.2,
       x: -8,
       y: 2,
@@ -46,18 +46,18 @@
       hasRing: false
     },
     {
-      name: "HIS World",
-      color: 0x00f5a0,
+      name: "Earth (HIS)",
+      color: 0x4b9fd8,  // Ocean blue
       size: 2.2,
       x: 8,
       y: 8,
       z: -6,
       info: "Production hospital system",
-      hasRing: true
+      hasRing: false
     },
     {
-      name: "Projects Galaxy",
-      color: 0xff006e,
+      name: "Mars (Projects)",
+      color: 0xe27b58,  // Rusty red
       size: 2.0,
       x: -12,
       y: -6,
@@ -66,24 +66,24 @@
       hasRing: false
     },
     {
-      name: "Skills Moon",
-      color: 0x00d9ff,
+      name: "Saturn (Skills)",
+      color: 0xfad5a5,  // Pale yellow
       size: 1.4,
       x: 10,
       y: -8,
       z: 3,
       info: "C#, .NET, Claude API",
-      hasRing: false
+      hasRing: true
     },
     {
-      name: "3D Space",
-      color: 0x00f5a0,
-      size: 1.3,
+      name: "Jupiter (3D)",
+      color: 0xc88b3a,  // Orange-brown
+      size: 1.8,
       x: -6,
       y: -10,
       z: 2,
-      info: "Three.js, WebGL",
-      hasRing: true
+      info: "Three.js, WebGL, immersive",
+      hasRing: false
     }
   ];
 
